@@ -35,6 +35,12 @@
 		140F73082D5D57CB003F454A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 140F73072D5D57CB003F454A /* FirebaseStorage */; };
 		140F730A2D5D57CB003F454A /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 140F73092D5D57CB003F454A /* FirebaseStorageCombine-Community */; };
 		140F730C2D5D57CB003F454A /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 140F730B2D5D57CB003F454A /* FirebaseVertexAI */; };
+		14725F722D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
+		14725F732D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
+		14725F742D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
+		14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030A2D6CD382007211BC /* AuthenticationPage.swift */; };
+		14C2030D2D6CD397007211BC /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030C2D6CD397007211BC /* HomePage.swift */; };
+		14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */; };
 		14D574782D52C06800BDD76D /* SOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574772D52C06800BDD76D /* SOSApp.swift */; };
 		14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574792D52C06800BDD76D /* ContentView.swift */; };
 		14D5747C2D52C06900BDD76D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14D5747B2D52C06900BDD76D /* Assets.xcassets */; };
@@ -42,13 +48,11 @@
 		14D574892D52C06900BDD76D /* SOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574882D52C06900BDD76D /* SOSTests.swift */; };
 		14D574932D52C06900BDD76D /* SOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574922D52C06900BDD76D /* SOSUITests.swift */; };
 		14D574952D52C06900BDD76D /* SOSUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574942D52C06900BDD76D /* SOSUITestsLaunchTests.swift */; };
-		14D574A22D52C27400BDD76D /* ImageCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574A12D52C27400BDD76D /* ImageCaptureView.swift */; };
-		14D574A42D52C2A000BDD76D /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574A32D52C2A000BDD76D /* ImagePicker.swift */; };
-		14D574A62D52C2BD00BDD76D /* DiagnosisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574A52D52C2BD00BDD76D /* DiagnosisView.swift */; };
-		14D574A82D52C2DD00BDD76D /* DiagnosisViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574A72D52C2DD00BDD76D /* DiagnosisViewModel.swift */; };
-		14D574AB2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14D574AA2D52C7FB00BDD76D /* GoogleService-Info.plist */; };
-		14D574AC2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14D574AA2D52C7FB00BDD76D /* GoogleService-Info.plist */; };
-		14D574AD2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14D574AA2D52C7FB00BDD76D /* GoogleService-Info.plist */; };
+		14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */; };
+		14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */; };
+		14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */; };
+		14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */; };
+		14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +73,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		14C2030A2D6CD382007211BC /* AuthenticationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationPage.swift; sourceTree = "<group>"; };
+		14C2030C2D6CD397007211BC /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
+		14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastDiagnosisPage.swift; sourceTree = "<group>"; };
 		14D574742D52C06800BDD76D /* SOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14D574772D52C06800BDD76D /* SOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSApp.swift; sourceTree = "<group>"; };
 		14D574792D52C06800BDD76D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -79,11 +87,11 @@
 		14D5748E2D52C06900BDD76D /* SOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		14D574922D52C06900BDD76D /* SOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSUITests.swift; sourceTree = "<group>"; };
 		14D574942D52C06900BDD76D /* SOSUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		14D574A12D52C27400BDD76D /* ImageCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCaptureView.swift; sourceTree = "<group>"; };
-		14D574A32D52C2A000BDD76D /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
-		14D574A52D52C2BD00BDD76D /* DiagnosisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisView.swift; sourceTree = "<group>"; };
-		14D574A72D52C2DD00BDD76D /* DiagnosisViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosisViewModel.swift; sourceTree = "<group>"; };
-		14D574AA2D52C7FB00BDD76D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionnaireView.swift; sourceTree = "<group>"; };
+		14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClarificationView.swift; sourceTree = "<group>"; };
+		14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTypePage.swift; sourceTree = "<group>"; };
+		14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalHomePage.swift; sourceTree = "<group>"; };
+		14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,7 +157,6 @@
 		14D5746B2D52C06700BDD76D = {
 			isa = PBXGroup;
 			children = (
-				14D574AA2D52C7FB00BDD76D /* GoogleService-Info.plist */,
 				14D574762D52C06800BDD76D /* SOS */,
 				14D574872D52C06900BDD76D /* SOSTests */,
 				14D574912D52C06900BDD76D /* SOSUITests */,
@@ -171,14 +178,19 @@
 		14D574762D52C06800BDD76D /* SOS */ = {
 			isa = PBXGroup;
 			children = (
+				14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */,
 				14D574772D52C06800BDD76D /* SOSApp.swift */,
 				14D574792D52C06800BDD76D /* ContentView.swift */,
+				14C2030A2D6CD382007211BC /* AuthenticationPage.swift */,
+				14C2030C2D6CD397007211BC /* HomePage.swift */,
+				14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */,
 				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
 				14D5747D2D52C06900BDD76D /* Preview Content */,
-				14D574A12D52C27400BDD76D /* ImageCaptureView.swift */,
-				14D574A32D52C2A000BDD76D /* ImagePicker.swift */,
-				14D574A52D52C2BD00BDD76D /* DiagnosisView.swift */,
-				14D574A72D52C2DD00BDD76D /* DiagnosisViewModel.swift */,
+				14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */,
+				14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */,
+				14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */,
+				14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */,
+				14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */,
 			);
 			path = SOS;
 			sourceTree = "<group>";
@@ -316,8 +328,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				14D5747F2D52C06900BDD76D /* Preview Assets.xcassets in Resources */,
+				14725F742D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */,
 				14D5747C2D52C06900BDD76D /* Assets.xcassets in Resources */,
-				14D574AB2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,7 +337,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14D574AC2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */,
+				14725F732D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,7 +345,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14D574AD2D52C7FB00BDD76D /* GoogleService-Info.plist in Resources */,
+				14725F722D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,12 +356,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14D574A82D52C2DD00BDD76D /* DiagnosisViewModel.swift in Sources */,
-				14D574A22D52C27400BDD76D /* ImageCaptureView.swift in Sources */,
-				14D574A42D52C2A000BDD76D /* ImagePicker.swift in Sources */,
 				14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */,
-				14D574A62D52C2BD00BDD76D /* DiagnosisView.swift in Sources */,
+				14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */,
+				14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */,
+				14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */,
+				14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */,
+				14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */,
+				14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */,
+				14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */,
 				14D574782D52C06800BDD76D /* SOSApp.swift in Sources */,
+				14C2030D2D6CD397007211BC /* HomePage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,9 +529,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 4D4ZS88TD6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -542,9 +561,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 4D4ZS88TD6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

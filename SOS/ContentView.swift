@@ -8,26 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var isAuthenticated = false
+    
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("SOS")
-                    .font(.largeTitle)
-                    .bold()
-                
-                Text("Emergency AI Diagnosis")
-                    .font(.headline)
-                
-                NavigationLink(destination: ImageCaptureView()) {
-                    Text("Upload Image / Take Photo")
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-            }
-            .padding()
-            .navigationTitle("Welcome")
+        if isAuthenticated {
+            HomePage()
+        } else {
+            AuthenticationPage(isAuthenticated: $isAuthenticated)
         }
     }
 }
