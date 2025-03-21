@@ -1,7 +1,3 @@
-
-
-
-
 import SwiftUI
 import UIKit
 import AVFoundation
@@ -10,137 +6,187 @@ import Speech
 struct HomePage: View {
     @State private var messages: [String] = []
     @State private var currentMessage: String = ""
-    @State private var showMicScreen = false
-    @State private var showCameraScreen = false
-    @State private var showBeatingCircle = false
+    @State private var showSpeechSheet = false
+    @State private var showCameraSheet = false
+    @State private var showProfileSheet = false
     @State private var transcribedText: String = ""
-    @State private var capturedImage: UIImage? = nil
+    @State private var selectedImages: [UIImage] = []
     @State private var selectedTab = 0
     @State private var requestingProfessionalHelp = false
+    @State private var navigateToLogin = false
 
     @StateObject private var speechRecognizer = SpeechRecognizer()
+    @StateObject private var authManager = FirebaseAuthManager()
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ZStack {
-                VStack {
-                    
-                    HStack {
-                         Spacer()
-                         Menu {
-                             Button("Profile", action: {
-                                 // Navigate to Profile Page
-                             })
-                             Button("Settings", action: {
-                                 // Navigate to Settings Page
-                             })
-                         } label: {
-                             Image(systemName: "person.crop.circle.fill")
-                                 .resizable()
-                                 .frame(width: 30, height: 30)
-                                 .foregroundColor(.blue)
-                         }
-                     }
-                     .padding(.horizontal)
-                    // REQUEST PROFESSIONAL HELP
-                    Button(action: {
-                        requestingProfessionalHelp = true
-                        findMatchingProfessional()
-                    }) {
-                        Text("Request Professional Help")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .padding()
-                    }
-
-                    if requestingProfessionalHelp {
-                        Text("Finding the best professional for you...")
-                            .foregroundColor(.gray)
-                            .padding(.bottom)
-                    }
-                    
-                    // Normal chat UI continues here...
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(messages, id: \.self) { message in
-                                HStack {
-                                    if isUserMessage(message) {
-                                        Spacer()
-                                        Text(message)
-                                            .padding()
-                                            .foregroundColor(.white)
-                                            .background(Color.blue)
-                                            .cornerRadius(12)
-                                    } else {
-                                        Text(message)
-                                            .padding()
-                                            .foregroundColor(.black)
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(12)
-                                        Spacer()
-                                    }
-                                }
-                                .padding(.horizontal)
+        NavigationStack {
+            TabView(selection: $selectedTab) {
+                ZStack {
+                    VStack {
+                        // Top menu with Profile and Settings
+                        HStack {
+                            Spacer()
+                            Menu {
+                                Button("Profile", action: {
+                                    showProfileSheet = true
+                                })
+                                Button("Settings", action: {
+                                    // Implement settings navigation as needed
+                                })
+                            } label: {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                    .foregroundColor(.blue)
                             }
                         }
-                    }
-                    .padding(.top, 10)
-                    .onTapGesture {
-                        hideKeyBoard()
-                    }
-                    
-                    // Input Area
-                    HStack(spacing: 10) {
+                        .padding(.horizontal)
+                        
+                        // Request Professional Help button
                         Button(action: {
-                            showMicScreen = true
-                            showBeatingCircle = true
-                            speechRecognizer.startTranscribing { text in
-                                transcribedText = text
-                            }
+                            requestingProfessionalHelp = true
+                            findMatchingProfessional()
                         }) {
-                            Image(systemName: "mic.fill")
-                                .foregroundColor(.gray)
-                        }
-                        TextField("Type your message...", text: $currentMessage)
-                            .frame(minHeight: 40)
-                        Button(action: {
-                            showCameraScreen = true
-                        }) {
-                            Image(systemName: "camera.fill")
-                                .foregroundColor(.gray)
-                        }
-                        Button(action: sendMessage) {
-                            Image(systemName: "paperplane.fill")
+                            Text("Request Professional Help")
+                                .font(.headline)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.red)
                                 .foregroundColor(.white)
-                                .padding(10)
-                                .background(Color.blue)
-                                .cornerRadius(20)
+                                .cornerRadius(10)
+                                .padding()
                         }
+                        
+                        if requestingProfessionalHelp {
+                            Text("Finding the best professional for you...")
+                                .foregroundColor(.gray)
+                                .padding(.bottom)
+                        }
+                        
+                        // Chat messages view
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                ForEach(messages, id: \.self) { message in
+                                    HStack {
+                                        if isUserMessage(message) {
+                                            Spacer()
+                                            Text(message)
+                                                .padding()
+                                                .foregroundColor(.white)
+                                                .background(Color.blue)
+                                                .cornerRadius(12)
+                                        } else {
+                                            Text(message)
+                                                .padding()
+                                                .foregroundColor(.black)
+                                                .background(Color.gray.opacity(0.2))
+                                                .cornerRadius(12)
+                                            Spacer()
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
+                        }
+                        .padding(.top, 10)
+                        .onTapGesture {
+                            hideKeyBoard()
+                        }
+                        
+                        // Input area for chat
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                showSpeechSheet = true
+                                speechRecognizer.startTranscribing { text in
+                                    transcribedText = text
+                                }
+                            }) {
+                                Image(systemName: "mic.fill")
+                                    .foregroundColor(.gray)
+                            }
+                            TextField("Type your message...", text: $currentMessage)
+                                .frame(minHeight: 40)
+                            Button(action: {
+                                showCameraSheet = true
+                            }) {
+                                Image(systemName: "camera.fill")
+                                    .foregroundColor(.gray)
+                            }
+                            Button(action: sendMessage) {
+                                Image(systemName: "paperplane.fill")
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .background(Color.blue)
+                                    .cornerRadius(20)
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.edgesIgnoringSafeArea(.bottom))
+                    }
+                }
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarBackButtonHidden(true)
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(0)
+                
+                PastDiagnosisPage()
+                    .tabItem {
+                        Label("Past Diagnosis", systemImage: "clock.fill")
+                    }
+                    .tag(1)
+            }
+            // Hidden NavigationLink for logout navigation:
+            NavigationLink(
+                destination: AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager),
+                isActive: $navigateToLogin
+            ) {
+                EmptyView()
+            }
+            .hidden()
+            .sheet(isPresented: $showSpeechSheet) {
+                SpeechRecognitionView(transcribedText: $transcribedText, onSend: {
+                    if !transcribedText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        messages.append(transcribedText.trimmingCharacters(in: .whitespaces))
+                        currentMessage = transcribedText.trimmingCharacters(in: .whitespaces)
+                        transcribedText = ""
+                    }
+                    showSpeechSheet = false
+                })
+            }
+            .sheet(isPresented: $showCameraSheet) {
+                CameraView(selectedImages: $selectedImages)
+            }
+            .fullScreenCover(isPresented: $navigateToLogin) {
+                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+            }
+            .sheet(isPresented: $showProfileSheet) {
+                VStack(spacing: 20) {
+                    Text("Profile")
+                        .font(.headline)
+                    Button("Logout") {
+                        authManager.logout()
+                        showProfileSheet = false
+                        navigateToLogin = true
                     }
                     .padding()
-                    .background(Color.white.edgesIgnoringSafeArea(.bottom))
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                    Button("Dismiss") {
+                        showProfileSheet = false
+                    }
+                    .padding()
                 }
+                .padding()
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
-            }
-            .tag(0)
-
-            PastDiagnosisPage()
-                .tabItem {
-                    Label("Past Diagnosis", systemImage: "clock.fill")
-                }
-                .tag(1)
+            .navigationBarBackButtonHidden(true)
         }
     }
     
     func isUserMessage(_ text: String) -> Bool {
-        !text.contains("AI offline") && !text.contains("GPT-4 Turbo")
+        return !text.contains("AI offline") && !text.contains("GPT-4 Turbo")
     }
     
     func sendMessage() {
@@ -169,10 +215,11 @@ struct HomePage: View {
             messages.append("AI: A professional has been assigned to you. They will review your case shortly.")
         }
     }
-
+    
     func hideKeyBoard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+        
 }
 
 struct HomePage_Previews: PreviewProvider {

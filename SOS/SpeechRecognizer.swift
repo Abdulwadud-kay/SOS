@@ -40,10 +40,12 @@ class SpeechRecognizer: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     }
 
     func startTranscribing(_ onUpdate: @escaping (String) -> Void) {
+        // If audio engine is running, stop the old session first.
         if audioEngine.isRunning {
             stopTranscribing()
         }
 
+        // Ensure we have microphone permission
         requestAuthorization { message in
             print(message)
         }
@@ -80,6 +82,7 @@ class SpeechRecognizer: NSObject, ObservableObject, SFSpeechRecognizerDelegate {
     }
 
     func stopTranscribing() {
+        audioEngine.inputNode.removeTap(onBus: 0)
         audioEngine.stop()
         request?.endAudio()
         recognitionTask?.cancel()

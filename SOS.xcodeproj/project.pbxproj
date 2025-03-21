@@ -38,6 +38,11 @@
 		14725F722D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
 		14725F732D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
 		14725F742D6F8A7F00AD2589 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */; };
+		149E3B802D8C9303002525E3 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 149E3B7F2D8C9303002525E3 /* FirebaseInAppMessaging-Beta */; };
+		14A301B82D8D8BB900CAC103 /* PatientDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */; };
+		14A301BA2D8D918A00CAC103 /* SpeechRecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */; };
+		14A301BC2D8D91A300CAC103 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301BB2D8D91A300CAC103 /* CameraView.swift */; };
+		14A301C42D8D964C00CAC103 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301C32D8D964C00CAC103 /* Case.swift */; };
 		14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030A2D6CD382007211BC /* AuthenticationPage.swift */; };
 		14C2030D2D6CD397007211BC /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030C2D6CD397007211BC /* HomePage.swift */; };
 		14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */; };
@@ -53,6 +58,7 @@
 		14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */; };
 		14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */; };
 		14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */; };
+		14E5D1172D8B0BE00096B9F4 /* FirebaseAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1162D8B0BE00096B9F4 /* FirebaseAuthManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +80,10 @@
 
 /* Begin PBXFileReference section */
 		14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatientDetailsView.swift; sourceTree = "<group>"; };
+		14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionView.swift; sourceTree = "<group>"; };
+		14A301BB2D8D91A300CAC103 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		14A301C32D8D964C00CAC103 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
 		14C2030A2D6CD382007211BC /* AuthenticationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationPage.swift; sourceTree = "<group>"; };
 		14C2030C2D6CD397007211BC /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
 		14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastDiagnosisPage.swift; sourceTree = "<group>"; };
@@ -92,6 +102,7 @@
 		14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTypePage.swift; sourceTree = "<group>"; };
 		14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalHomePage.swift; sourceTree = "<group>"; };
 		14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		14E5D1162D8B0BE00096B9F4 /* FirebaseAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +124,7 @@
 				140F72E22D5D57CB003F454A /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				140F72DE2D5D57CB003F454A /* FirebaseAnalytics in Frameworks */,
 				140F72FA2D5D57CB003F454A /* FirebaseFunctionsCombine-Community in Frameworks */,
+				149E3B802D8C9303002525E3 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				140F73042D5D57CB003F454A /* FirebasePerformance in Frameworks */,
 				140F72EE2D5D57CB003F454A /* FirebaseCrashlytics in Frameworks */,
 				140F730A2D5D57CB003F454A /* FirebaseStorageCombine-Community in Frameworks */,
@@ -181,16 +193,21 @@
 				14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */,
 				14D574772D52C06800BDD76D /* SOSApp.swift */,
 				14D574792D52C06800BDD76D /* ContentView.swift */,
+				14A301C32D8D964C00CAC103 /* Case.swift */,
+				14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */,
 				14C2030A2D6CD382007211BC /* AuthenticationPage.swift */,
 				14C2030C2D6CD397007211BC /* HomePage.swift */,
+				14A301BB2D8D91A300CAC103 /* CameraView.swift */,
 				14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */,
-				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
-				14D5747D2D52C06900BDD76D /* Preview Content */,
 				14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */,
 				14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */,
 				14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */,
 				14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */,
 				14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */,
+				14E5D1162D8B0BE00096B9F4 /* FirebaseAuthManager.swift */,
+				14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */,
+				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
+				14D5747D2D52C06900BDD76D /* Preview Content */,
 			);
 			path = SOS;
 			sourceTree = "<group>";
@@ -357,13 +374,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */,
+				14A301BC2D8D91A300CAC103 /* CameraView.swift in Sources */,
 				14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */,
 				14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */,
 				14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */,
 				14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */,
 				14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */,
+				14A301C42D8D964C00CAC103 /* Case.swift in Sources */,
 				14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */,
+				14E5D1172D8B0BE00096B9F4 /* FirebaseAuthManager.swift in Sources */,
 				14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */,
+				14A301B82D8D8BB900CAC103 /* PatientDetailsView.swift in Sources */,
+				14A301BA2D8D918A00CAC103 /* SpeechRecognitionView.swift in Sources */,
 				14D574782D52C06800BDD76D /* SOSApp.swift in Sources */,
 				14C2030D2D6CD397007211BC /* HomePage.swift in Sources */,
 			);
@@ -532,6 +554,8 @@
 				DEVELOPMENT_TEAM = 4D4ZS88TD6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
@@ -564,6 +588,8 @@
 				DEVELOPMENT_TEAM = 4D4ZS88TD6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
@@ -857,6 +883,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 140F72DC2D5D57CB003F454A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseVertexAI;
+		};
+		149E3B7F2D8C9303002525E3 /* FirebaseInAppMessaging-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 140F72DC2D5D57CB003F454A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseInAppMessaging-Beta";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

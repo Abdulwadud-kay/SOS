@@ -5,69 +5,63 @@
 //  Created by Abdulwadud Abdulkadir on 3/17/25.
 //
 
-import Foundation
 import SwiftUI
 
 struct UserTypePage: View {
-    @State private var selectedUserType: String? = nil
+    @ObservedObject var authManager: FirebaseAuthManager
+    @State private var selectedType: String = ""
     @State private var navigateToQuestionnaire = false
-    @State private var userId: String = UUID().uuidString // Temporary User ID
+    @State private var errorMessage: String? = nil
+    @State private var showErrorAlert = false
+    
+    // For example purposes, we list two types.
+    let userTypes = ["Patient", "Professional"]
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Select Your User Type")
-                    .font(.title)
-                    .padding(.bottom, 30)
-
-                HStack(spacing: 20) {
-                    Button(action: {
-                        selectedUserType = "Patient"
-                        navigateToQuestionnaire = true
-                    }) {
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.red)
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(12)
-                            Text("Patient")
-                                .foregroundColor(.white)
-                                .font(.headline)
+        VStack(spacing: 20) {
+            Text("Select Your User Type")
+                .font(.title)
+            
+            ForEach(userTypes, id: \.self) { type in
+                Button(action: {
+                    selectedType = type
+                    // Save the user type to Firestore.
+                    authManager.updateUserType(type) { success, error in
+                        if success {
+                            navigateToQuestionnaire = true
+                        } else {
+                            errorMessage = error
+                            showErrorAlert = true
                         }
                     }
-                    
-                    Button(action: {
-                        selectedUserType = "Professional"
-                        navigateToQuestionnaire = true
-                    }) {
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.gray)
-                                .frame(width: 150, height: 150)
-                                .cornerRadius(12)
-                            Text("Professional")
-                                .foregroundColor(.white)
-                                .font(.headline)
-                        }
-                    }
+                }) {
+                    Text(type)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(selectedType == type ? Color.blue.opacity(0.2) : Color.gray.opacity(0.2))
+                        .cornerRadius(8)
                 }
-                .padding()
-                
-                NavigationLink(
-                    destination: QuestionnaireView(userId: userId, userType: selectedUserType ?? ""),
-                    isActive: $navigateToQuestionnaire
-                ) {
-                    EmptyView()
-                }
-                .hidden()
             }
-            .navigationBarBackButtonHidden(true) 
+            
+            NavigationLink(
+                destination: QuestionnaireView(
+                    authManager: authManager,
+                    userId: authManager.userId,
+                    userType: authManager.userType ?? ""),
+                isActive: $navigateToQuestionnaire
+            ) {
+                EmptyView()
+            }
+        }
+        .padding()
+        .alert(isPresented: $showErrorAlert) {
+            Alert(title: Text("Error"), message: Text(errorMessage ?? "An error occurred."), dismissButton: .default(Text("OK")))
         }
     }
 }
 
 struct UserTypePage_Previews: PreviewProvider {
     static var previews: some View {
-        UserTypePage()
+        UserTypePage(authManager: FirebaseAuthManager())
     }
 }
