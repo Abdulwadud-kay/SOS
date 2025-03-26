@@ -43,6 +43,8 @@
 		14A301BA2D8D918A00CAC103 /* SpeechRecognitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */; };
 		14A301BC2D8D91A300CAC103 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301BB2D8D91A300CAC103 /* CameraView.swift */; };
 		14A301C42D8D964C00CAC103 /* Case.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A301C32D8D964C00CAC103 /* Case.swift */; };
+		14B0036C2D93288700871353 /* ChatGPTService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B0036B2D93288700871353 /* ChatGPTService.swift */; };
+		14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B0036D2D93452A00871353 /* LoadingDotsView.swift */; };
 		14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030A2D6CD382007211BC /* AuthenticationPage.swift */; };
 		14C2030D2D6CD397007211BC /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030C2D6CD397007211BC /* HomePage.swift */; };
 		14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */; };
@@ -84,6 +86,8 @@
 		14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionView.swift; sourceTree = "<group>"; };
 		14A301BB2D8D91A300CAC103 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		14A301C32D8D964C00CAC103 /* Case.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Case.swift; sourceTree = "<group>"; };
+		14B0036B2D93288700871353 /* ChatGPTService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatGPTService.swift; sourceTree = "<group>"; };
+		14B0036D2D93452A00871353 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		14C2030A2D6CD382007211BC /* AuthenticationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationPage.swift; sourceTree = "<group>"; };
 		14C2030C2D6CD397007211BC /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
 		14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastDiagnosisPage.swift; sourceTree = "<group>"; };
@@ -208,6 +212,8 @@
 				14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */,
 				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
 				14D5747D2D52C06900BDD76D /* Preview Content */,
+				14B0036B2D93288700871353 /* ChatGPTService.swift */,
+				14B0036D2D93452A00871353 /* LoadingDotsView.swift */,
 			);
 			path = SOS;
 			sourceTree = "<group>";
@@ -377,6 +383,7 @@
 				14A301BC2D8D91A300CAC103 /* CameraView.swift in Sources */,
 				14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */,
 				14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */,
+				14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */,
 				14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */,
 				14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */,
 				14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */,
@@ -384,6 +391,7 @@
 				14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */,
 				14E5D1172D8B0BE00096B9F4 /* FirebaseAuthManager.swift in Sources */,
 				14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */,
+				14B0036C2D93288700871353 /* ChatGPTService.swift in Sources */,
 				14A301B82D8D8BB900CAC103 /* PatientDetailsView.swift in Sources */,
 				14A301BA2D8D918A00CAC103 /* SpeechRecognitionView.swift in Sources */,
 				14D574782D52C06800BDD76D /* SOSApp.swift in Sources */,

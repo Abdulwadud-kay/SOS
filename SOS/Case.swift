@@ -13,11 +13,9 @@ struct Case: Identifiable, Hashable {
     var patientName: String
     var age: Int
     var medicalHistory: String
-    var ailment: String
-    var aiDiagnosis: String
-    var aiFirstAid: String
     var chatHistory: [String]
     var status: String
+    var createdAt: Date
 }
 
 struct CasePreview: View {
@@ -30,7 +28,9 @@ struct CasePreview: View {
                 VStack(alignment: .leading) {
                     Text(caseItem.patientName)
                         .font(.headline)
-                    Text("AI Diagnosis: \(caseItem.ailment)")
+                    // Remove or replace the line below, for example:
+                    // Text("Status: \(caseItem.status)")
+                    Text("Status: \(caseItem.status)")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -44,3 +44,4 @@ struct CasePreview: View {
         .shadow(radius: 2)
     }
 }
+

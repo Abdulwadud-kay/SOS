@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    // Observe the same FirebaseAuthManager
     @ObservedObject var authManager = FirebaseAuthManager()
     @State private var navPath = NavigationPath()
     @State private var navID = UUID()  // unique id for the NavigationStack
@@ -16,37 +15,39 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navPath) {
             if !authManager.isAuthenticated {
+                // User is not logged in: show the login page.
                 AuthenticationPage(
                     isAuthenticated: $authManager.isAuthenticated,
                     authManager: authManager
                 )
             } else {
-                if authManager.userType == nil {
-                    if authManager.isFirstTimeUser {
-                        UserTypePage(authManager: authManager)
-                    } else {
-                        ProgressView("Loading user type...")
-                            .onAppear {
-                                authManager.fetchUserProgress(userID: authManager.userId)
-                            }
-                    }
-                } else {
+                // User is authenticated:
+                if let userType = authManager.userType {
+                    // If userType is set, check if the questionnaire is completed.
                     if authManager.isQuestionnaireCompleted {
-                        switch authManager.userType! {
+                        switch userType {
                         case "Patient":
                             HomePage()
                         case "Professional":
                             ProfessionalHomePage()
                         default:
-                            Text("Unknown user type: \(authManager.userType!)")
+                            Text("Unknown user type: \(userType)")
                         }
                     } else {
+                        // Questionnaire not completed: show it.
                         QuestionnaireView(
                             authManager: authManager,
                             userId: authManager.userId,
-                            userType: authManager.userType ?? "Patient"
+                            userType: userType
                         )
                     }
+                } else {
+                    // If userType is nil, assume that user is not a first-time user.
+                    // Show a ProgressView while fetching the user data.
+                    ProgressView("Loading user data...")
+                        .onAppear {
+                            authManager.fetchUserProgress(userID: authManager.userId)
+                        }
                 }
             }
         }
