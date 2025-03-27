@@ -6,18 +6,18 @@
 //
 
 import SwiftUI
-import FirebaseCore
+import Firebase
 import FirebaseMessaging
 import UserNotifications
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
-        // Request notification permissions
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().delegate = self
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
             print("Notification permission granted: \(granted)")
             if let error = error {
@@ -26,26 +26,34 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         }
         application.registerForRemoteNotifications()
         
-        // Set FCM Messaging delegate
         Messaging.messaging().delegate = self
         
         return true
     }
     
-    // Called when the FCM registration token is updated
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(fcmToken ?? "")")
-        // Optionally, send this token to your server if needed
+        guard let fcmToken = fcmToken,
+              let userId = Auth.auth().currentUser?.uid else { return }
+
+        print("Firebase registration token refreshed: \(fcmToken)")
+
+        Firestore.firestore().collection("users").document(userId).setData([
+            "fcmToken": fcmToken
+        ], merge: true) { error in
+            if let error = error {
+                print("❌ Error saving FCM token: \(error)")
+            } else {
+                print("✅ FCM token updated successfully in Firestore.")
+            }
+        }
     }
-    
-    // This method is called when a notification is delivered while the app is in the foreground.
+
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .sound, .badge])
     }
 }
-
 
 @main
 struct SOSApp: App {

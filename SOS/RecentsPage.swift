@@ -1,9 +1,10 @@
 //
-//  PastDiagnosisPage.swift
+//  RecentsPage.swift
 //  SOS
 //
-//  Created by Abdulwadud Abdulkadir on 2/24/25.
+//  Created by Abdulwadud Abdulkadir on 3/26/25.
 //
+
 
 import SwiftUI
 import Firebase
@@ -26,7 +27,7 @@ struct RecentsPage: View {
                         Text(displayDate(c.createdAt))
                             .font(.subheadline)
                             .foregroundColor(.gray)
-                        if c.status == "Closed" {
+                        if c.status == "Closed" || c.status == "Resolved" {
                             Text("Status: Closed")
                                 .foregroundColor(.red)
                         } else {
@@ -42,7 +43,7 @@ struct RecentsPage: View {
             .onDisappear {
                 listenerRegistration?.remove()
             }
-            .navigationDestination(item: $selectedCaseID) { caseID in
+            .navigationDestination(for: String.self) { caseID in
                 HomePage(incomingCaseID: caseID)
             }
         }
@@ -83,5 +84,11 @@ struct RecentsPage: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+}
+
+struct RecentsPage_Previews: PreviewProvider {
+    static var previews: some View {
+        RecentsPage()
     }
 }

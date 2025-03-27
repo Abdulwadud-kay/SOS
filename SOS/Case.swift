@@ -44,4 +44,3 @@ struct CasePreview: View {
         .shadow(radius: 2)
     }
 }
-

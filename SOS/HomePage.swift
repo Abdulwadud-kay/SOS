@@ -1,6 +1,5 @@
 
 
-
 import SwiftUI
 import UIKit
 import AVFoundation
@@ -21,18 +20,22 @@ struct HomePage: View {
     @State private var selectedTab = 0
     @State private var requestingProfessionalHelp = false
     @State private var navigateToLogin = false
-    @State private var showClarification = false
-    @State private var clarificationQuestion: String = ""
-    @State private var clarificationOptions: [ClarificationItem] = []
-    @State private var finalDiagnosis: String? = nil
     @State private var isWaitingForResponse = false
     @State private var caseID: String? = nil
     @State private var listenerRegistration: ListenerRegistration? = nil
     @State private var hasActiveCase = false
+    @State private var currentCaseStatus: String = "InProgress"
     
     @StateObject private var speechRecognizer = SpeechRecognizer()
     @StateObject private var authManager = FirebaseAuthManager()
     private let chatGPTService = ChatGPTService()
+    
+    var isRequestHelpEnabled: Bool {
+        return currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"
+    }
+    var isCloseCaseEnabled: Bool {
+        return currentCaseStatus != "Closed" && currentCaseStatus != "Resolved"
+    }
     
     var body: some View {
         NavigationStack {
@@ -52,37 +55,34 @@ struct HomePage: View {
                             }
                         }
                         .padding(.horizontal)
-                        
-                        if hasActiveCase {
-                            Button(action: closeCase) {
-                                Text("Close Case")
-                                    .font(.headline)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.red)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                                    .padding()
-                            }
-                        } else {
+                        HStack(spacing: 16) {
                             Button(action: requestProfessionalHelp) {
                                 Text("Request Professional Help")
                                     .font(.headline)
                                     .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(Color.red)
+                                    .background(isRequestHelpEnabled ? Color.red : Color.gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
-                                    .padding()
                             }
+                            .disabled(!isRequestHelpEnabled)
+                            Button(action: closeCase) {
+                                Text("Close Case")
+                                    .font(.headline)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(isCloseCaseEnabled ? Color.red : Color.gray)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                            .disabled(!isCloseCaseEnabled)
                         }
-                        
+                        .padding(.horizontal)
                         if requestingProfessionalHelp {
                             Text("Finding the best professional for you...")
                                 .foregroundColor(.gray)
                                 .padding(.bottom)
                         }
-                        
                         ScrollView {
                             VStack(spacing: 12) {
                                 ForEach(messages, id: \.self) { message in
@@ -121,7 +121,6 @@ struct HomePage: View {
                         }
                         .padding(.top, 10)
                         .onTapGesture { hideKeyBoard() }
-                        
                         HStack(spacing: 10) {
                             Button(action: {
                                 showSpeechSheet = true
@@ -148,26 +147,26 @@ struct HomePage: View {
                         }
                         .padding()
                         .background(Color.white.edgesIgnoringSafeArea(.bottom))
+                        .disabled(!(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"))
+
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarBackButtonHidden(true)
                 .tabItem { Label("Home", systemImage: "house.fill") }
                 .tag(0)
-                
                 RecentsPage()
                     .tabItem { Label("Recents", systemImage: "clock.fill") }
                     .tag(1)
             }
-            
             NavigationLink(
-                destination: AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager),
+                destination: AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+                    .navigationBarBackButtonHidden(true),
                 isActive: $navigateToLogin
             ) {
                 EmptyView()
             }
             .hidden()
-            
             .sheet(isPresented: $showSpeechSheet) {
                 SpeechRecognitionView(transcribedText: $transcribedText, onSend: {
                     if !transcribedText.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -178,15 +177,14 @@ struct HomePage: View {
                     showSpeechSheet = false
                 })
             }
-            
             .sheet(isPresented: $showCameraSheet) {
-                CameraView(selectedImages: $selectedImages)
+                CameraView { recognizedText in
+                    if !recognizedText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        currentMessage = recognizedText
+                        sendMessage()
+                    }
+                }
             }
-            
-            .fullScreenCover(isPresented: $navigateToLogin) {
-                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
-            }
-            
             .sheet(isPresented: $showProfileSheet) {
                 VStack(spacing: 20) {
                     Text("Profile").font(.headline)
@@ -204,17 +202,15 @@ struct HomePage: View {
                 }
                 .padding()
             }
-            
-            .sheet(isPresented: $showClarification) {
-                ClarificationReplyView(question: clarificationQuestion, options: clarificationOptions) { chosen in
-                    let clarText = chosen.map { $0.text }.joined(separator: ", ")
-                    let clarMsg = "User (clarification): \(clarText)"
-                    messages.append(clarMsg)
-                    showClarification = false
-                    getDiagnosis()
+            .onAppear {
+                if let existingID = incomingCaseID {
+                    caseID = existingID
+                    hasActiveCase = true
+                    listenToCaseDocument(docId: existingID)
+                } else {
+                    autoCreateCaseIfNotExists()
                 }
             }
-            .onAppear { autoCreateCaseIfNotExists() }
             .onDisappear { listenerRegistration?.remove() }
             .navigationBarBackButtonHidden(true)
         }
@@ -238,100 +234,113 @@ struct HomePage: View {
         }
         return nil
     }
+    func fetchQuestionnaireWithRetry(userID: String, retries: Int = 3, delay: TimeInterval = 1.0, completion: @escaping ([Any]?) -> Void) {
+        fetchQuestionnaire(for: userID) { answers in
+            if answers != nil || retries == 0 {
+                completion(answers)
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    fetchQuestionnaireWithRetry(userID: userID, retries: retries - 1, delay: delay, completion: completion)
+                }
+            }
+        }
+    }
     
     func autoCreateCaseIfNotExists() {
         guard let user = Auth.auth().currentUser else { return }
         let db = Firestore.firestore()
-        db.collection("cases")
-            .whereField("patientUid", isEqualTo: user.uid)
-            .whereField("status", in: ["Pending", "InProgress"])
-            .getDocuments { snap, error in
-                if let error = error {
-                    print("Error checking existing case: \(error)")
-                    return
-                }
-                if let docs = snap?.documents, !docs.isEmpty {
-                    let d = docs.first!
-                    caseID = d.documentID
-                    listenToCaseDocument(docId: d.documentID)
-                    hasActiveCase = true
-                } else {
-                    fetchQuestionnaire(for: user.uid) { answers in
-                        let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
-                        let age = 0
-                        var medHist = ""
-                        if let arr = answers {
-                            for (i, _) in arr.enumerated() {
-                                if i != 0 {
-                                    if let str = extractAnswer(arr, index: i), !str.isEmpty {
-                                        medHist += str + "\n"
-                                    }
-                                }
-                            }
-                        }
-                        let ref = db.collection("cases").document()
-                        let data: [String: Any] = [
-                            "patientUid": user.uid,
-                            "patientName": name,
-                            "age": age,
-                            "medicalHistory": medHist,
-                            "chatHistory": [],
-                            "status": "InProgress",
-                            "createdAt": FieldValue.serverTimestamp()
-                        ]
-                        ref.setData(data) { err in
-                            if let err = err {
-                                print("Error creating new case: \(err)")
-                                return
-                            }
-                            caseID = ref.documentID
-                            listenToCaseDocument(docId: ref.documentID)
-                            hasActiveCase = true
-                        }
+
+        fetchQuestionnaireWithRetry(userID: user.uid) { answers in
+            let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
+            let age = Int(extractAnswer(answers ?? [], index: 1) ?? "0") ?? 0
+            var medHist = ""
+            if let arr = answers {
+                for (i, _) in arr.enumerated() where i > 1 {
+                    if let str = extractAnswer(arr, index: i), !str.isEmpty {
+                        medHist += "\(str)\n"
                     }
                 }
             }
+
+            // Now create the case with guaranteed data
+            let ref = db.collection("cases").document()
+            let data: [String: Any] = [
+                "patientUid": user.uid,
+                "patientName": name,
+                "age": age,
+                "medicalHistory": medHist,
+                "chatHistory": [],
+                "status": "InProgress",
+                "createdAt": FieldValue.serverTimestamp()
+            ]
+            ref.setData(data) { err in
+                if let err = err {
+                    print("Error creating new case: \(err)")
+                    return
+                }
+                caseID = ref.documentID
+                hasActiveCase = true
+                listenToCaseDocument(docId: ref.documentID)
+            }
+        }
     }
+
     
     func listenToCaseDocument(docId: String) {
         let db = Firestore.firestore()
         listenerRegistration = db.collection("cases").document(docId)
             .addSnapshotListener { snap, err in
-                if let err = err {
-                    print("Error listening to doc: \(err)")
-                    return
-                }
-                guard let d = snap?.data() else {
-                    print("No data found for case \(docId).")
-                    return
-                }
-                if let arr = d["chatHistory"] as? [String] {
-                    messages = arr
-                }
-                if let st = d["status"] as? String {
-                    requestingProfessionalHelp = (st == "Pending")
-                    hasActiveCase = (st == "InProgress" || st == "Pending")
+                DispatchQueue.main.async {
+                    if let err = err {
+                        print("Error: \(err)")
+                        return
+                    }
+
+                    guard let d = snap?.data() else { return }
+
+                    caseID = docId
+                    messages = d["chatHistory"] as? [String] ?? []
+                    currentCaseStatus = d["status"] as? String ?? "InProgress"
+                    requestingProfessionalHelp = currentCaseStatus == "Pending"
+                    hasActiveCase = ["InProgress", "Pending", "Accepted"].contains(currentCaseStatus)
                 }
             }
     }
+
     
     func requestProfessionalHelp() {
         requestingProfessionalHelp = true
-        guard let docId = caseID else {
-            print("No case doc to set as Pending.")
+        guard let user = Auth.auth().currentUser, let docId = caseID else {
+            print("No case doc to update.")
             requestingProfessionalHelp = false
             return
         }
         let db = Firestore.firestore()
-        db.collection("cases").document(docId).updateData([
-            "status": "Pending"
-        ]) { err in
-            if let err = err {
-                print("Error setting Pending: \(err)")
-                requestingProfessionalHelp = false
-                return
+        fetchQuestionnaire(for: user.uid) { answers in
+            let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
+            let age = 0
+            var medHist = ""
+            if let arr = answers {
+                for (i, _) in arr.enumerated() {
+                    if i != 0, let str = extractAnswer(arr, index: i), !str.isEmpty {
+                        medHist += str + "\n"
+                    }
+                }
             }
-            print("Case doc \(docId) is now Pending.")
+            let updateData: [String: Any] = [
+                "patientName": name,
+                "age": age,
+                "medicalHistory": medHist,
+                "status": "Pending"
+            ]
+            db.collection("cases").document(docId).updateData(updateData) { err in
+                if let err = err {
+                    print("Error updating case to Pending: \(err)")
+                    requestingProfessionalHelp = false
+                    return
+                }
+                print("Case doc \(docId) is now Pending.")
+            }
         }
     }
     
@@ -352,6 +361,7 @@ struct HomePage: View {
             hasActiveCase = false
             caseID = nil
             messages = []
+            autoCreateCaseIfNotExists()
         }
     }
     
@@ -390,68 +400,45 @@ struct HomePage: View {
                         chatMsgs.append(ChatGPTMessage(role: "assistant", content: c))
                     }
                 }
-                chatGPTService.sendMessageToChatGPT(messages: chatMsgs) { result in
+
+                // Decide if you want GPT-4 or GPT-3.5:
+                let wantGPT4 = true  // or maybe false
+
+                chatGPTService.sendMessageToChatGPT(messages: chatMsgs, useGPT4: wantGPT4) { result in
                     DispatchQueue.main.async {
-                        isWaitingForResponse = false
+                        self.isWaitingForResponse = false
                         switch result {
                         case .success(let reply):
-                            if let block = extractJSON(from: reply),
-                               let jData = block.data(using: .utf8),
-                               let jObj = try? JSONSerialization.jsonObject(with: jData) as? [String: Any],
-                               let quest = jObj["question"] as? String,
-                               let opts = jObj["options"] as? [String] {
-                                clarificationQuestion = quest
-                                clarificationOptions = opts.map { ClarificationItem(text: $0) }
-                                showClarification = true
-                            } else {
-                                let gptMsg = "GPT: \(reply)"
-                                db.collection("cases").document(did).updateData([
-                                    "chatHistory": FieldValue.arrayUnion([gptMsg])
-                                ])
-                            }
+                            let gptMsg = "GPT: \(reply)"
+                            db.collection("cases").document(did).updateData([
+                                "chatHistory": FieldValue.arrayUnion([gptMsg])
+                            ])
                         case .failure(let e):
                             print("ChatGPT error: \(e)")
                         }
                     }
                 }
-            }
-        }
-    }
-    
-    func getDiagnosis() {
-        guard let did = caseID else { return }
-        let db = Firestore.firestore()
-        isWaitingForResponse = true
-        chatGPTService.sendMessageToChatGPT(messages: buildChatGPTMessages()) { res in
-            DispatchQueue.main.async {
-                isWaitingForResponse = false
-                switch res {
-                case .success(let r):
-                    finalDiagnosis = r
-                    let fm = formatDiagnosis(response: r)
-                    db.collection("cases").document(did).updateData([
-                        "chatHistory": FieldValue.arrayUnion([fm])
-                    ])
-                case .failure(let e):
-                    print("ChatGPT error: \(e)")
-                }
+
             }
         }
     }
     
     func buildChatGPTMessages() -> [ChatGPTMessage] {
         var chatM: [ChatGPTMessage] = []
-        for i in messages {
+        let recentMessages = messages.suffix(8) // Corrected to 'messages'
+        for i in recentMessages {
             if i.hasPrefix("User:") {
-                let c = i.replacingOccurrences(of: "User:", with: "").trimmingCharacters(in: .whitespaces)
+                let c = i.replacingOccurrences(of: "User:", with: "").trimmingCharacters(in: CharacterSet.whitespaces)
                 chatM.append(ChatGPTMessage(role: "user", content: c))
             } else if i.hasPrefix("GPT:") {
-                let c = i.replacingOccurrences(of: "GPT:", with: "").trimmingCharacters(in: .whitespaces)
+                let c = i.replacingOccurrences(of: "GPT:", with: "").trimmingCharacters(in: CharacterSet.whitespaces)
                 chatM.append(ChatGPTMessage(role: "assistant", content: c))
             }
         }
         return chatM
     }
+
+
     
     func formatDiagnosis(response: String) -> String {
         "GPT: \n-----------------\n\(response)\n-----------------"
@@ -470,8 +457,12 @@ struct HomePage: View {
     }
 }
 
-
-
+struct HomePageWithLoad: View {
+    let caseID: String
+    var body: some View {
+        HomePage(incomingCaseID: caseID)
+    }
+}
 
 struct HomePage_Previews: PreviewProvider {
     static var previews: some View {

@@ -6,107 +6,118 @@
 //
 
 
+// CameraView.swift
 import SwiftUI
+import AVFoundation
 import PhotosUI
 
 struct CameraView: View {
-    @Binding var selectedImages: [UIImage]
-    @Environment(\.dismiss) var dismiss
-    @State private var showPicker = false
-    var body: some View {
-        NavigationView {
-            VStack {
-                if selectedImages.isEmpty {
-                    Text("No images selected")
-                } else {
-                    ScrollView(.horizontal) {
-                        HStack {
-                            ForEach(selectedImages, id: \.self) { image in
-                                ZStack(alignment: .topTrailing) {
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .frame(width: 100, height: 100)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    Button(action: {
-                                        if let index = selectedImages.firstIndex(of: image) {
-                                            selectedImages.remove(at: index)
-                                        }
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                            }
-                        }
-                    }
+    
+    let onImageAnalyzed: (String) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var capturePhotoTrigger = false
+    private let chatGPTService = ChatGPTService() // <-- Corrected
+
+    func analyzeImage(_ image: UIImage) {
+        chatGPTService.analyzeImageWithVision(image: image, prompt: "Analyze for medical diagnosis") { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let description):
+                    onImageAnalyzed(description)
+                case .failure(let error):
+                    onImageAnalyzed("Error: \(error.localizedDescription)")
                 }
+                dismiss()
+            }
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            CameraCaptureView(onPhotoTaken: analyzeImage, capturePhotoTrigger: $capturePhotoTrigger)
+
+            VStack {
+                HStack {
+                    Button("Close") { dismiss() }
+                        .padding()
+                    Spacer()
+                }
+
                 Spacer()
-                Button("Select from Library") {
-                    showPicker = true
+
+                Button("Take Photo") {
+                    capturePhotoTrigger = true
                 }
                 .padding()
                 .background(Color.blue)
                 .foregroundColor(.white)
                 .cornerRadius(8)
-                Spacer()
-            }
-            .navigationTitle("Camera")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-            .sheet(isPresented: $showPicker) {
-                PhotoPicker(selectedImages: $selectedImages)
+                .padding(.bottom, 30)
             }
         }
     }
 }
 
-struct PhotoPicker: UIViewControllerRepresentable {
-    @Binding var selectedImages: [UIImage]
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration()
-        config.selectionLimit = 4
-        config.filter = .images
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = context.coordinator
-        return picker
+struct CameraCaptureView: UIViewControllerRepresentable {
+    let onPhotoTaken: (UIImage) -> Void
+    @Binding var capturePhotoTrigger: Bool
+
+    func makeUIViewController(context: Context) -> CameraCaptureVC {
+        let vc = CameraCaptureVC()
+        vc.onPhotoTaken = onPhotoTaken
+        return vc
     }
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: PhotoPicker
-        init(_ parent: PhotoPicker) {
-            self.parent = parent
-        }
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            parent.selectedImages = []
-            let group = DispatchGroup()
-            for result in results {
-                group.enter()
-                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                    if let image = object as? UIImage {
-                        DispatchQueue.main.async {
-                            self.parent.selectedImages.append(image)
-                        }
-                    }
-                    group.leave()
-                }
-            }
-            group.notify(queue: .main) {
-                picker.dismiss(animated: true)
+
+    func updateUIViewController(_ uiViewController: CameraCaptureVC, context: Context) {
+        if capturePhotoTrigger {
+            uiViewController.takePhoto()
+            DispatchQueue.main.async {
+                self.capturePhotoTrigger = false
             }
         }
     }
 }
 
-struct CameraView_Previews: PreviewProvider {
-    static var previews: some View {
-        CameraView(selectedImages: .constant([]))
+class CameraCaptureVC: UIViewController, AVCapturePhotoCaptureDelegate {
+    var onPhotoTaken: ((UIImage) -> Void)?
+    private let captureSession = AVCaptureSession()
+    private let photoOutput = AVCapturePhotoOutput()
+    private var previewLayer: AVCaptureVideoPreviewLayer!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        captureSession.sessionPreset = .photo
+
+        guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else { return }
+        do {
+            let input = try AVCaptureDeviceInput(device: backCamera)
+            if captureSession.canAddInput(input) { captureSession.addInput(input) }
+            if captureSession.canAddOutput(photoOutput) { captureSession.addOutput(photoOutput) }
+
+            previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+            previewLayer.videoGravity = .resizeAspectFill
+            view.layer.addSublayer(previewLayer)
+
+            captureSession.startRunning()
+        } catch {
+            print("Error setting up camera input: \(error)")
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        previewLayer.frame = view.bounds
+    }
+
+    func takePhoto() {
+        let settings = AVCapturePhotoSettings()
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard error == nil,
+              let imageData = photo.fileDataRepresentation(),
+              let uiImage = UIImage(data: imageData) else { return }
+        onPhotoTaken?(uiImage)
     }
 }

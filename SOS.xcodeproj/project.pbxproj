@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		140970C72D947C0900CCB37C /* RecentsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970C62D947C0800CCB37C /* RecentsPage.swift */; };
+		140970CB2D95231F00CCB37C /* VisionBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970CA2D95231F00CCB37C /* VisionBackend.swift */; };
+		140970CD2D95234500CCB37C /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970CC2D95234500CCB37C /* OpenAIService.swift */; };
 		140F72D52D5C0DB9003F454A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 140F72D42D5C0DB9003F454A /* FirebaseAnalytics */; };
 		140F72D72D5C0DC0003F454A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 140F72D62D5C0DC0003F454A /* FirebaseCore */; };
 		140F72D92D5C0DC5003F454A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 140F72D82D5C0DC5003F454A /* FirebaseAuth */; };
@@ -47,7 +50,6 @@
 		14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B0036D2D93452A00871353 /* LoadingDotsView.swift */; };
 		14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030A2D6CD382007211BC /* AuthenticationPage.swift */; };
 		14C2030D2D6CD397007211BC /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030C2D6CD397007211BC /* HomePage.swift */; };
-		14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */; };
 		14D574782D52C06800BDD76D /* SOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574772D52C06800BDD76D /* SOSApp.swift */; };
 		14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574792D52C06800BDD76D /* ContentView.swift */; };
 		14D5747C2D52C06900BDD76D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14D5747B2D52C06900BDD76D /* Assets.xcassets */; };
@@ -56,7 +58,6 @@
 		14D574932D52C06900BDD76D /* SOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574922D52C06900BDD76D /* SOSUITests.swift */; };
 		14D574952D52C06900BDD76D /* SOSUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574942D52C06900BDD76D /* SOSUITestsLaunchTests.swift */; };
 		14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */; };
-		14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */; };
 		14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */; };
 		14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */; };
 		14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */; };
@@ -81,6 +82,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		140970C62D947C0800CCB37C /* RecentsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentsPage.swift; sourceTree = "<group>"; };
+		140970CA2D95231F00CCB37C /* VisionBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionBackend.swift; sourceTree = "<group>"; };
+		140970CC2D95234500CCB37C /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		14725F712D6F8A7F00AD2589 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatientDetailsView.swift; sourceTree = "<group>"; };
 		14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionView.swift; sourceTree = "<group>"; };
@@ -90,7 +94,6 @@
 		14B0036D2D93452A00871353 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		14C2030A2D6CD382007211BC /* AuthenticationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationPage.swift; sourceTree = "<group>"; };
 		14C2030C2D6CD397007211BC /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
-		14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastDiagnosisPage.swift; sourceTree = "<group>"; };
 		14D574742D52C06800BDD76D /* SOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14D574772D52C06800BDD76D /* SOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSApp.swift; sourceTree = "<group>"; };
 		14D574792D52C06800BDD76D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -102,7 +105,6 @@
 		14D574922D52C06900BDD76D /* SOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSUITests.swift; sourceTree = "<group>"; };
 		14D574942D52C06900BDD76D /* SOSUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionnaireView.swift; sourceTree = "<group>"; };
-		14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClarificationView.swift; sourceTree = "<group>"; };
 		14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTypePage.swift; sourceTree = "<group>"; };
 		14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalHomePage.swift; sourceTree = "<group>"; };
 		14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
@@ -202,18 +204,19 @@
 				14C2030A2D6CD382007211BC /* AuthenticationPage.swift */,
 				14C2030C2D6CD397007211BC /* HomePage.swift */,
 				14A301BB2D8D91A300CAC103 /* CameraView.swift */,
-				14C203102D6CD3F9007211BC /* PastDiagnosisPage.swift */,
+				140970C62D947C0800CCB37C /* RecentsPage.swift */,
 				14E5D10A2D7663680096B9F4 /* QuestionnaireView.swift */,
-				14E5D10C2D7665B60096B9F4 /* ClarificationView.swift */,
 				14E5D10E2D88B5980096B9F4 /* UserTypePage.swift */,
 				14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */,
 				14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */,
 				14E5D1162D8B0BE00096B9F4 /* FirebaseAuthManager.swift */,
 				14A301B72D8D8BB900CAC103 /* PatientDetailsView.swift */,
-				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
-				14D5747D2D52C06900BDD76D /* Preview Content */,
 				14B0036B2D93288700871353 /* ChatGPTService.swift */,
 				14B0036D2D93452A00871353 /* LoadingDotsView.swift */,
+				140970CC2D95234500CCB37C /* OpenAIService.swift */,
+				140970CA2D95231F00CCB37C /* VisionBackend.swift */,
+				14D5747B2D52C06900BDD76D /* Assets.xcassets */,
+				14D5747D2D52C06900BDD76D /* Preview Content */,
 			);
 			path = SOS;
 			sourceTree = "<group>";
@@ -382,17 +385,18 @@
 				14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */,
 				14A301BC2D8D91A300CAC103 /* CameraView.swift in Sources */,
 				14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */,
-				14C203112D6CD3F9007211BC /* PastDiagnosisPage.swift in Sources */,
 				14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */,
+				140970C72D947C0900CCB37C /* RecentsPage.swift in Sources */,
+				140970CD2D95234500CCB37C /* OpenAIService.swift in Sources */,
 				14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */,
 				14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */,
 				14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */,
 				14A301C42D8D964C00CAC103 /* Case.swift in Sources */,
 				14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */,
 				14E5D1172D8B0BE00096B9F4 /* FirebaseAuthManager.swift in Sources */,
-				14E5D10D2D7665B60096B9F4 /* ClarificationView.swift in Sources */,
 				14B0036C2D93288700871353 /* ChatGPTService.swift in Sources */,
 				14A301B82D8D8BB900CAC103 /* PatientDetailsView.swift in Sources */,
+				140970CB2D95231F00CCB37C /* VisionBackend.swift in Sources */,
 				14A301BA2D8D918A00CAC103 /* SpeechRecognitionView.swift in Sources */,
 				14D574782D52C06800BDD76D /* SOSApp.swift in Sources */,
 				14C2030D2D6CD397007211BC /* HomePage.swift in Sources */,
@@ -565,6 +569,7 @@
 				INFOPLIST_FILE = SOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture photos for text recognition and analysis.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -599,6 +604,7 @@
 				INFOPLIST_FILE = SOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app requires access to the camera to capture photos for text recognition and analysis.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone for speech-to-text";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to transcribe audio";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -148,7 +148,8 @@ struct PatientDetailsView: View {
                     age: data["age"] as? Int ?? 0,
                     medicalHistory: data["medicalHistory"] as? String ?? "",
                     chatHistory: data["chatHistory"] as? [String] ?? [],
-                    status: data["status"] as? String ?? "InProgress"
+                    status: data["status"] as? String ?? "InProgress",
+                    createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
                 )
                 loadedCase = newCase
             }

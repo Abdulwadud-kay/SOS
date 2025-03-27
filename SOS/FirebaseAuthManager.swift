@@ -16,26 +16,27 @@ class FirebaseAuthManager: ObservableObject {
     @Published var userType: String? = nil
     @Published var isFirstTimeUser = true
     @Published var isQuestionnaireCompleted = false
+    @Published var isLoggedInFromFirestore = false
 
     private let auth = Auth.auth()
     private let db = Firestore.firestore()
+    private var loginListener: ListenerRegistration?
 
     func signUp(email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { result, error in
             if let error = error {
-                print("Sign up error: \(error.localizedDescription)")
                 completion(false, error.localizedDescription)
                 return
             }
             guard let user = result?.user else {
-                let message = "User creation failed"
-                print(message)
-                completion(false, message)
+                completion(false, "User creation failed")
                 return
             }
             self.userId = user.uid
             self.initializeUser(userID: user.uid, email: email)
             self.isAuthenticated = true
+            self.setLoggedIn(true)
+            self.startListeningForLoginStatus()
             completion(true, nil)
         }
     }
@@ -43,34 +44,49 @@ class FirebaseAuthManager: ObservableObject {
     func login(email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
         auth.signIn(withEmail: email, password: password) { result, error in
             if let error = error {
-                print("Login error: \(error.localizedDescription)")
                 completion(false, error.localizedDescription)
                 return
             }
             guard let user = result?.user else {
-                let message = "User login failed"
-                print(message)
-                completion(false, message)
+                completion(false, "User login failed")
                 return
             }
             self.userId = user.uid
             self.isAuthenticated = true
+            self.setLoggedIn(true)
             self.fetchUserProgress(userID: user.uid)
+
+            self.startListeningForLoginStatus()
+
+            // <-- INSERT EXACTLY HERE -->
+            self.db.collection("users").document(user.uid).getDocument { snap, error in
+                if let data = snap?.data(), error == nil, let userType = data["userType"] as? String, userType == "Professional" {
+                    Messaging.messaging().subscribe(toTopic: "professionals") { error in
+                        if let error = error {
+                            print("❌ Subscription failed: \(error.localizedDescription)")
+                        } else {
+                            print("✅ Subscribed to professionals topic successfully.")
+                        }
+                    }
+                }
+            }
+
             completion(true, nil)
         }
     }
+
 
     func fetchUserProgress(userID: String) {
         let userRef = db.collection("users").document(userID)
         userRef.getDocument { snapshot, error in
             guard let data = snapshot?.data(), error == nil else {
-                print("No user data found, assuming first time user.")
                 self.isFirstTimeUser = true
                 return
             }
             self.userType = data["userType"] as? String
             self.isQuestionnaireCompleted = data["questionnaireCompleted"] as? Bool ?? false
             self.isFirstTimeUser = (self.userType == nil)
+            self.isLoggedInFromFirestore = data["isLoggedIn"] as? Bool ?? false
         }
     }
 
@@ -78,14 +94,9 @@ class FirebaseAuthManager: ObservableObject {
         db.collection("users").document(userID).setData([
             "email": email,
             "userType": NSNull(),
-            "questionnaireCompleted": false
-        ]) { error in
-            if let error = error {
-                print("Error saving new user: \(error.localizedDescription)")
-            } else {
-                print("User successfully saved!")
-            }
-        }
+            "questionnaireCompleted": false,
+            "isLoggedIn": true
+        ]) { error in }
         self.isFirstTimeUser = true
     }
     
@@ -100,21 +111,54 @@ class FirebaseAuthManager: ObservableObject {
                 completion(false, error.localizedDescription)
             } else {
                 self.userType = type
-                self.isFirstTimeUser = false // Mark as not first time anymore
+                self.isFirstTimeUser = false
                 completion(true, nil)
             }
         }
     }
 
-    
     func logout() {
         do {
             try auth.signOut()
+            Messaging.messaging().unsubscribe(fromTopic: "professionals") { error in
+                if let error = error {
+                    print("❌ Unsubscribe failed: \(error.localizedDescription)")
+                } else {
+                    print("✅ Unsubscribed from professionals topic successfully.")
+                }
+            }
+            self.setLoggedIn(false)
             isAuthenticated = false
             userId = ""
             userType = nil
+            loginListener?.remove()
+            NotificationCenter.default.post(name: NSNotification.Name("UserDidLogoutNotification"), object: nil)
         } catch {
             print("Logout error: \(error.localizedDescription)")
         }
     }
+
+
+    
+    private func setLoggedIn(_ value: Bool) {
+        guard !userId.isEmpty else { return }
+        db.collection("users").document(userId).updateData(["isLoggedIn": value]) { error in
+            if let error = error {
+                print("Error updating isLoggedIn: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func startListeningForLoginStatus() {
+        guard !userId.isEmpty else { return }
+        loginListener = db.collection("users").document(userId)
+            .addSnapshotListener { snapshot, error in
+                guard let data = snapshot?.data(), error == nil else { return }
+                if let loggedIn = data["isLoggedIn"] as? Bool, !loggedIn {
+                    self.isAuthenticated = false
+                    NotificationCenter.default.post(name: NSNotification.Name("UserDidLogoutNotification"), object: nil)
+                }
+            }
+    }
+
 }

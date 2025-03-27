@@ -13,7 +13,8 @@ struct ProfessionalHomePage: View {
     @State private var navigateToLogin = false
     @StateObject private var authManager = FirebaseAuthManager()
     @State private var listenerRegistration: ListenerRegistration? = nil
-    
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -31,17 +32,48 @@ struct ProfessionalHomePage: View {
                         }
                     }
                     .padding(.horizontal)
-                    
+
                     Text("Recent Cases")
                         .font(.largeTitle)
                         .bold()
                         .padding()
-                    
+
                     LazyVStack(spacing: 10) {
                         ForEach(cases, id: \.self) { caseItem in
-                            CasePreview(caseItem: caseItem) { selected in
-                                activePendingCase = selected
+                            VStack {
+                                CasePreview(caseItem: caseItem) { selected in
+                                    activePendingCase = selected
+                                }
+                                HStack(spacing: 20) {
+                                    Button("Accept") {
+                                        acceptCase(caseId: caseItem.id, professionalID: authManager.userId)
+                                    }
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .background(Color.green)
+                                    .cornerRadius(8)
+
+                                    Button("Reject") {
+                                        rejectCase(caseId: caseItem.id)
+                                    }
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .background(Color.red)
+                                    .cornerRadius(8)
+
+                                    Button("Release") {
+                                        releaseCase(caseID: caseItem.id)
+                                    }
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .background(Color.orange)
+                                    .cornerRadius(8)
+                                }
                             }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(radius: 2)
                         }
                     }
                     .padding(.horizontal)
@@ -54,21 +86,8 @@ struct ProfessionalHomePage: View {
             .navigationTitle("Patient Cases")
             .navigationBarBackButtonHidden(true)
             .navigationDestination(item: $activePendingCase) { selectedCase in
-                PatientDetailsView(caseDetails: selectedCase) {
-                    activePendingCase = nil
-                }
+                PatientDetailsView(caseID: selectedCase.id, onBack: { activePendingCase = nil })
             }
-            
-            NavigationLink(
-                destination: AuthenticationPage(
-                    isAuthenticated: $authManager.isAuthenticated,
-                    authManager: authManager
-                ),
-                isActive: $navigateToLogin
-            ) {
-                EmptyView()
-            }
-            .hidden()
             .fullScreenCover(isPresented: $navigateToLogin) {
                 AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
             }
@@ -84,73 +103,42 @@ struct ProfessionalHomePage: View {
                     .background(Color.red)
                     .foregroundColor(.white)
                     .cornerRadius(8)
-                    Button("Dismiss") {
-                        showProfileSheet = false
-                    }
-                    .padding()
+                    Button("Dismiss") { showProfileSheet = false }
+                        .padding()
                 }
                 .padding()
             }
         }
     }
-    
-    func fetchPendingCases() {
+
+    func acceptCase(caseId: String, professionalID: String) {
         let db = Firestore.firestore()
-        listenerRegistration = db.collection("cases")
-            .whereField("status", isEqualTo: "Pending")
-            .addSnapshotListener { snapshot, error in
-                if let error = error {
-                    print("Error fetching pending cases: \(error)")
-                    return
-                }
-                guard let documents = snapshot?.documents else {
-                    self.cases = []
-                    return
-                }
-                self.cases = documents.map { doc in
-                    let data = doc.data()
-                    return Case(
-                        id: doc.documentID,
-                        patientName: data["patientName"] as? String ?? "Unknown",
-                        age: data["age"] as? Int ?? 0,
-                        medicalHistory: data["medicalHistory"] as? String ?? "",
-                        chatHistory: data["chatHistory"] as? [String] ?? [],
-                        status: data["status"] as? String ?? "Pending"
-                    )
-                }
-            }
-    }
-    
-    func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
-            if let error = error {
-                print("Notification permission error: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func acceptCase(_ pendingCase: Case) {
-        let db = Firestore.firestore()
-        let professionalID = authManager.userId
-        db.collection("cases").document(pendingCase.id).updateData([
+        db.collection("cases").document(caseId).updateData([
             "status": "Accepted",
             "professionalID": professionalID
         ]) { err in
-            if let err = err {
-                print("Error accepting case: \(err)")
-            } else {
-                activePendingCase = pendingCase
-            }
+            if let err = err { print("Error accepting case: \(err)") }
         }
     }
-    
-    func rejectCase(_ pendingCase: Case) {
-        activePendingCase = nil
-    }
-}
 
-struct ProfessionalHomePage_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfessionalHomePage()
+    func rejectCase(caseId: String) {
+        let db = Firestore.firestore()
+        db.collection("cases").document(caseId).updateData([
+            "status": "Pending",
+            "professionalID": FieldValue.delete()
+        ]) { err in
+            if let err = err { print("Error rejecting case: \(err)") }
+        }
+    }
+
+    func releaseCase(caseID: String) {
+        let db = Firestore.firestore()
+        db.collection("cases").document(caseID).updateData([
+            "status": "Pending",
+            "professionalID": FieldValue.delete()
+        ]) { err in
+            if let err = err { print("Error releasing case: \(err.localizedDescription)") }
+            else { dismiss() }
+        }
     }
 }
