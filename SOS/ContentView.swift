@@ -14,10 +14,17 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            if !authManager.isAuthenticated || !authManager.isLoggedInFromFirestore {
-                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
-            } else {
-                if let userType = authManager.userType {
+            Group {
+                if !authManager.isAuthenticated {
+                    AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+
+                } else if !authManager.isLoggedInFromFirestore {
+                    ProgressView("Loading your profile...")
+                        .onAppear {
+                            authManager.fetchUserProgress(userID: authManager.userId)
+                        }
+
+                } else if let userType = authManager.userType {
                     if authManager.isQuestionnaireCompleted {
                         if userType == "Patient" {
                             HomePage()
@@ -25,10 +32,15 @@ struct ContentView: View {
                             ProfessionalHomePage()
                         }
                     } else {
-                        QuestionnaireView(authManager: authManager, userId: authManager.userId, userType: userType)
+                        QuestionnaireView(
+                            authManager: authManager,
+                            userId: authManager.userId,
+                            userType: userType
+                        )
                     }
+
                 } else {
-                    ProgressView("Loading user data...")
+                    ProgressView("Loading user type...")
                         .onAppear {
                             authManager.fetchUserProgress(userID: authManager.userId)
                         }
@@ -43,6 +55,7 @@ struct ContentView: View {
         .navigationBarBackButtonHidden(true)
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {

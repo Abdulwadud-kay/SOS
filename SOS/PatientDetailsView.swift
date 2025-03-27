@@ -17,6 +17,7 @@ struct PatientDetailsView: View {
     @State private var showChatHistory = false
     
     var body: some View {
+        
         ScrollView {
             if let c = loadedCase {
                 VStack(alignment: .leading, spacing: 16) {
@@ -103,6 +104,7 @@ struct PatientDetailsView: View {
         }
         .background(Color(UIColor.systemGroupedBackground))
         .navigationTitle("Patient File")
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {

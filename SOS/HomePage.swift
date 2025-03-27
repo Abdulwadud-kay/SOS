@@ -179,19 +179,28 @@ struct HomePage: View {
             }
             .sheet(isPresented: $showCameraSheet) {
                 CameraView { recognizedText in
-                    if !recognizedText.trimmingCharacters(in: .whitespaces).isEmpty {
-                        currentMessage = recognizedText
-                        sendMessage()
+                    isWaitingForResponse = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        if !recognizedText.trimmingCharacters(in: .whitespaces).isEmpty {
+                            currentMessage = recognizedText
+                            sendMessage()
+                        }
+                        isWaitingForResponse = false
                     }
                 }
             }
+            .fullScreenCover(isPresented: .constant(!authManager.isAuthenticated)) {
+                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+            }
+
+
             .sheet(isPresented: $showProfileSheet) {
                 VStack(spacing: 20) {
                     Text("Profile").font(.headline)
                     Button("Logout") {
                         authManager.logout()
                         showProfileSheet = false
-                        navigateToLogin = true
+//                        navigateToLogin = true
                     }
                     .padding()
                     .background(Color.red)
@@ -234,56 +243,76 @@ struct HomePage: View {
         }
         return nil
     }
-    func fetchQuestionnaireWithRetry(userID: String, retries: Int = 3, delay: TimeInterval = 1.0, completion: @escaping ([Any]?) -> Void) {
-        fetchQuestionnaire(for: userID) { answers in
-            if answers != nil || retries == 0 {
-                completion(answers)
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    fetchQuestionnaireWithRetry(userID: userID, retries: retries - 1, delay: delay, completion: completion)
-                }
-            }
-        }
-    }
+//    func fetchQuestionnaireWithRetry(userID: String, retries: Int = 3, delay: TimeInterval = 1.0, completion: @escaping ([Any]?) -> Void) {
+//        fetchQuestionnaire(for: userID) { answers in
+//            if answers != nil || retries == 0 {
+//                completion(answers)
+//            } else {
+//                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+//                    fetchQuestionnaireWithRetry(userID: userID, retries: retries - 1, delay: delay, completion: completion)
+//                }
+//            }
+//        }
+//    }
     
     func autoCreateCaseIfNotExists() {
         guard let user = Auth.auth().currentUser else { return }
         let db = Firestore.firestore()
 
-        fetchQuestionnaireWithRetry(userID: user.uid) { answers in
-            let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
-            let age = Int(extractAnswer(answers ?? [], index: 1) ?? "0") ?? 0
-            var medHist = ""
-            if let arr = answers {
-                for (i, _) in arr.enumerated() where i > 1 {
-                    if let str = extractAnswer(arr, index: i), !str.isEmpty {
-                        medHist += "\(str)\n"
+        db.collection("cases")
+            .whereField("patientUid", isEqualTo: user.uid)
+            .whereField("status", isNotEqualTo: "Closed")
+            .getDocuments { snapshot, error in
+                if let docs = snapshot?.documents, !docs.isEmpty {
+                    self.caseID = docs.first?.documentID
+                    self.hasActiveCase = true
+                    self.listenToCaseDocument(docId: self.caseID!)
+                    return
+                }
+
+                db.collection("questionnaire").document(user.uid).getDocument { snap, err in
+                    guard let data = snap?.data(),
+                          let answers = data["answers"] as? [[String: String]] else {
+                        print("⚠️ No questionnaire data found")
+                        return
+                    }
+
+                    // Extract and format data
+                    let name = answers.first?["What is your full name?"] ?? user.displayName ?? "Unknown"
+                    let birthDate = answers[1]["When were you born?"] ?? ""
+                    let age = calculateAge(from: birthDate) ?? 0
+                    let medHistory = answers
+                        .dropFirst(2)
+                        .compactMap { $0.values.first }
+                        .filter { !$0.isEmpty }
+                        .joined(separator: "\n")
+
+                    // Create case
+                    let ref = db.collection("cases").document()
+                    let caseData: [String: Any] = [
+                        "patientUid": user.uid,
+                        "patientName": name,
+                        "age": age,
+                        "medicalHistory": medHistory,
+                        "chatHistory": [],
+                        "status": "InProgress",
+                        "createdAt": FieldValue.serverTimestamp()
+                    ]
+
+                    ref.setData(caseData) { error in
+                        if let error = error {
+                            print("❌ Failed to create case: \(error)")
+                            return
+                        }
+                        self.caseID = ref.documentID
+                        self.hasActiveCase = true
+                        self.listenToCaseDocument(docId: ref.documentID)
                     }
                 }
             }
-
-            // Now create the case with guaranteed data
-            let ref = db.collection("cases").document()
-            let data: [String: Any] = [
-                "patientUid": user.uid,
-                "patientName": name,
-                "age": age,
-                "medicalHistory": medHist,
-                "chatHistory": [],
-                "status": "InProgress",
-                "createdAt": FieldValue.serverTimestamp()
-            ]
-            ref.setData(data) { err in
-                if let err = err {
-                    print("Error creating new case: \(err)")
-                    return
-                }
-                caseID = ref.documentID
-                hasActiveCase = true
-                listenToCaseDocument(docId: ref.documentID)
-            }
-        }
     }
+
+
 
     
     func listenToCaseDocument(docId: String) {
@@ -316,33 +345,47 @@ struct HomePage: View {
             return
         }
         let db = Firestore.firestore()
+
         fetchQuestionnaire(for: user.uid) { answers in
             let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
-            let age = 0
+
+            // ✅ Calculate age from birthdate
+            let birthdateISO = extractAnswer(answers ?? [], index: 1) ?? ""
+            let age = calculateAge(from: birthdateISO)
+
+            // ✅ Build medical history with labels
+            let prompts = [
+                "Gender", "Blood Type", "Allergies", "Chronic Conditions", "Past Surgeries",
+                "Medications", "Do you smoke?", "Do you consume alcohol?",
+                "Emergency Contact Name", "Emergency Contact Number", "Current Health Concern"
+            ]
             var medHist = ""
             if let arr = answers {
-                for (i, _) in arr.enumerated() {
-                    if i != 0, let str = extractAnswer(arr, index: i), !str.isEmpty {
-                        medHist += str + "\n"
+                for (i, label) in prompts.enumerated() {
+                    if let val = extractAnswer(arr, index: i + 2), !val.isEmpty {
+                        medHist += "\(label): \(val)\n"
                     }
                 }
             }
+
             let updateData: [String: Any] = [
                 "patientName": name,
                 "age": age,
                 "medicalHistory": medHist,
                 "status": "Pending"
             ]
+
             db.collection("cases").document(docId).updateData(updateData) { err in
+                requestingProfessionalHelp = false
                 if let err = err {
                     print("Error updating case to Pending: \(err)")
-                    requestingProfessionalHelp = false
                     return
                 }
-                print("Case doc \(docId) is now Pending.")
+                print("✅ Case \(docId) is now Pending.")
             }
         }
     }
+
     
     func closeCase() {
         guard let docId = caseID else {
@@ -437,6 +480,15 @@ struct HomePage: View {
         }
         return chatM
     }
+    
+    func calculateAge(from isoDate: String) -> Int {
+        guard let birthDate = ISO8601DateFormatter().date(from: isoDate) else { return 0 }
+        let calendar = Calendar.current
+        let ageComponents = calendar.dateComponents([.year], from: birthDate, to: Date())
+        return ageComponents.year ?? 0
+    }
+
+
 
 
     

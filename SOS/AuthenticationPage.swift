@@ -30,7 +30,9 @@ struct AuthenticationPage: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                     Button("Login") {
                         authManager.login(email: email, password: password) { success, error in
-                            if !success {
+                            if success {
+                                isAuthenticated = true
+                            } else {
                                 errorMessage = error
                                 showErrorAlert = true
                             }
@@ -58,12 +60,15 @@ struct AuthenticationPage: View {
                             showErrorAlert = true
                             return
                         }
-                        authManager.signUp(email: email, password: password) { success, error in
-                            if !success {
+                        authManager.login(email: email, password: password) { success, error in
+                            if success {
+                                isAuthenticated = true
+                            } else {
                                 errorMessage = error
                                 showErrorAlert = true
                             }
                         }
+
                     }
                     .padding()
                     Button("Already have an account? Login") { isLogin = true }
