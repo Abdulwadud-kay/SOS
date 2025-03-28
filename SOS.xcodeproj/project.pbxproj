@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10C8ADEBAA9BA61D7624B971 /* Pods_SOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0327B5959A1EBBE86B47FA0 /* Pods_SOS.framework */; };
 		140970C72D947C0900CCB37C /* RecentsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970C62D947C0800CCB37C /* RecentsPage.swift */; };
 		140970CB2D95231F00CCB37C /* VisionBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970CA2D95231F00CCB37C /* VisionBackend.swift */; };
 		140970CD2D95234500CCB37C /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140970CC2D95234500CCB37C /* OpenAIService.swift */; };
@@ -50,6 +51,9 @@
 		14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B0036D2D93452A00871353 /* LoadingDotsView.swift */; };
 		14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030A2D6CD382007211BC /* AuthenticationPage.swift */; };
 		14C2030D2D6CD397007211BC /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C2030C2D6CD397007211BC /* HomePage.swift */; };
+		14C57BE62D97077D005387BA /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C57BE52D97077D005387BA /* SplashScreenView.swift */; };
+		14C57BEA2D971564005387BA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C57BE92D971564005387BA /* SettingsView.swift */; };
+		14C57BEC2D97165C005387BA /* ProfileSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C57BEB2D97165C005387BA /* ProfileSheetView.swift */; };
 		14D574782D52C06800BDD76D /* SOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574772D52C06800BDD76D /* SOSApp.swift */; };
 		14D5747A2D52C06800BDD76D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D574792D52C06800BDD76D /* ContentView.swift */; };
 		14D5747C2D52C06900BDD76D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14D5747B2D52C06900BDD76D /* Assets.xcassets */; };
@@ -94,6 +98,9 @@
 		14B0036D2D93452A00871353 /* LoadingDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingDotsView.swift; sourceTree = "<group>"; };
 		14C2030A2D6CD382007211BC /* AuthenticationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationPage.swift; sourceTree = "<group>"; };
 		14C2030C2D6CD397007211BC /* HomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePage.swift; sourceTree = "<group>"; };
+		14C57BE52D97077D005387BA /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		14C57BE92D971564005387BA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		14C57BEB2D97165C005387BA /* ProfileSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheetView.swift; sourceTree = "<group>"; };
 		14D574742D52C06800BDD76D /* SOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14D574772D52C06800BDD76D /* SOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SOSApp.swift; sourceTree = "<group>"; };
 		14D574792D52C06800BDD76D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -109,6 +116,9 @@
 		14E5D1102D88C69C0096B9F4 /* ProfessionalHomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfessionalHomePage.swift; sourceTree = "<group>"; };
 		14E5D1122D88CCBF0096B9F4 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		14E5D1162D8B0BE00096B9F4 /* FirebaseAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthManager.swift; sourceTree = "<group>"; };
+		A0327B5959A1EBBE86B47FA0 /* Pods_SOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B60150856D3630E097690C31 /* Pods-SOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SOS.debug.xcconfig"; path = "Target Support Files/Pods-SOS/Pods-SOS.debug.xcconfig"; sourceTree = "<group>"; };
+		F5A3F2F3976DF9A33CCC1B89 /* Pods-SOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SOS.release.xcconfig"; path = "Target Support Files/Pods-SOS/Pods-SOS.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +155,7 @@
 				140F730C2D5D57CB003F454A /* FirebaseVertexAI in Frameworks */,
 				140F72F22D5D57CB003F454A /* FirebaseDynamicLinks in Frameworks */,
 				140F72FC2D5D57CB003F454A /* FirebaseInAppMessaging-Beta in Frameworks */,
+				10C8ADEBAA9BA61D7624B971 /* Pods_SOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +179,7 @@
 		140F72D32D5C0DB9003F454A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A0327B5959A1EBBE86B47FA0 /* Pods_SOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -180,6 +192,7 @@
 				14D574912D52C06900BDD76D /* SOSUITests */,
 				140F72D32D5C0DB9003F454A /* Frameworks */,
 				14D574752D52C06800BDD76D /* Products */,
+				45298E3D3F4073E1C7A82F89 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -202,6 +215,9 @@
 				14A301C32D8D964C00CAC103 /* Case.swift */,
 				14A301B92D8D918A00CAC103 /* SpeechRecognitionView.swift */,
 				14C2030A2D6CD382007211BC /* AuthenticationPage.swift */,
+				14C57BE92D971564005387BA /* SettingsView.swift */,
+				14C57BEB2D97165C005387BA /* ProfileSheetView.swift */,
+				14C57BE52D97077D005387BA /* SplashScreenView.swift */,
 				14C2030C2D6CD397007211BC /* HomePage.swift */,
 				14A301BB2D8D91A300CAC103 /* CameraView.swift */,
 				140970C62D947C0800CCB37C /* RecentsPage.swift */,
@@ -246,6 +262,16 @@
 			path = SOSUITests;
 			sourceTree = "<group>";
 		};
+		45298E3D3F4073E1C7A82F89 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B60150856D3630E097690C31 /* Pods-SOS.debug.xcconfig */,
+				F5A3F2F3976DF9A33CCC1B89 /* Pods-SOS.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -253,9 +279,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 14D574982D52C06900BDD76D /* Build configuration list for PBXNativeTarget "SOS" */;
 			buildPhases = (
+				3949812A74BB76454CECCCDA /* [CP] Check Pods Manifest.lock */,
 				14D574702D52C06800BDD76D /* Sources */,
 				14D574712D52C06800BDD76D /* Frameworks */,
 				14D574722D52C06800BDD76D /* Resources */,
+				A119A943D57B8531CBA0A57F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -334,9 +362,6 @@
 				Base,
 			);
 			mainGroup = 14D5746B2D52C06700BDD76D;
-			packageReferences = (
-				140F72DC2D5D57CB003F454A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-			);
 			productRefGroup = 14D574752D52C06800BDD76D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -377,6 +402,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		3949812A74BB76454CECCCDA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A119A943D57B8531CBA0A57F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SOS/Pods-SOS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SOS/Pods-SOS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SOS/Pods-SOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		14D574702D52C06800BDD76D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -387,12 +454,15 @@
 				14E5D1112D88C69C0096B9F4 /* ProfessionalHomePage.swift in Sources */,
 				14B0036E2D93452A00871353 /* LoadingDotsView.swift in Sources */,
 				140970C72D947C0900CCB37C /* RecentsPage.swift in Sources */,
+				14C57BEA2D971564005387BA /* SettingsView.swift in Sources */,
 				140970CD2D95234500CCB37C /* OpenAIService.swift in Sources */,
 				14E5D10B2D7663680096B9F4 /* QuestionnaireView.swift in Sources */,
 				14C2030B2D6CD382007211BC /* AuthenticationPage.swift in Sources */,
 				14E5D1132D88CCBF0096B9F4 /* SpeechRecognizer.swift in Sources */,
 				14A301C42D8D964C00CAC103 /* Case.swift in Sources */,
 				14E5D10F2D88B5980096B9F4 /* UserTypePage.swift in Sources */,
+				14C57BEC2D97165C005387BA /* ProfileSheetView.swift in Sources */,
+				14C57BE62D97077D005387BA /* SplashScreenView.swift in Sources */,
 				14E5D1172D8B0BE00096B9F4 /* FirebaseAuthManager.swift in Sources */,
 				14B0036C2D93288700871353 /* ChatGPTService.swift in Sources */,
 				14A301B82D8D8BB900CAC103 /* PatientDetailsView.swift in Sources */,
@@ -557,6 +627,7 @@
 		};
 		14D574992D52C06900BDD76D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B60150856D3630E097690C31 /* Pods-SOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -592,6 +663,7 @@
 		};
 		14D5749A2D52C06900BDD76D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F5A3F2F3976DF9A33CCC1B89 /* Pods-SOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

@@ -25,55 +25,80 @@ struct QuestionnaireView: View {
     @State private var showErrorAlert = false
     var userId: String
     var userType: String
-
+    
     var body: some View {
         NavigationStack {
             ZStack {
-                VStack {
+                Color.white.ignoresSafeArea()
+                VStack(spacing: 20) {
                     if questions.isEmpty {
                         ProgressView("Loading questions...")
                             .onAppear { loadQuestions() }
                     } else if !isFinished {
-                        VStack {
+                        VStack(spacing: 30) {
                             Text(questions[currentIndex].prompt)
-                                .font(.headline)
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .multilineTextAlignment(.center)
                                 .padding()
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(10)
+                                .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2)
+                            
                             contentForQuestion(questions[currentIndex])
-                                .frame(height: 120)
+                                .animation(.spring(), value: currentIndex)
+                            
                             HStack {
                                 if currentIndex > 0 {
-                                    Button("Back") { withAnimation(.spring()) { currentIndex -= 1 } }
+                                    Button(action: { withAnimation { currentIndex -= 1 } }) {
+                                        Text("Back")
+                                            .padding()
+                                            .frame(maxWidth: .infinity)
+                                            .background(Color.gray.opacity(0.2))
+                                            .foregroundColor(.black)
+                                            .cornerRadius(10)
+                                    }
                                 }
-                                Spacer()
-                                if currentIndex < questions.count - 1 {
-                                    Button("Next") { withAnimation(.spring()) { currentIndex += 1 } }
-                                        .disabled(!isAnswerValid(questions[currentIndex]))
-                                } else {
-                                    Button("Finish") { withAnimation(.spring()) { isFinished = true } }
-                                        .disabled(!isAnswerValid(questions[currentIndex]))
+                                
+                                Button(action: {
+                                    if currentIndex < questions.count - 1 {
+                                        withAnimation { currentIndex += 1 }
+                                    } else {
+                                        withAnimation { isFinished = true }
+                                    }
+                                }) {
+                                    Text(currentIndex < questions.count - 1 ? "Next" : "Finish")
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(isAnswerValid(questions[currentIndex]) ? Color.red : Color.gray.opacity(0.3))
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
                                 }
+                                .disabled(!isAnswerValid(questions[currentIndex]))
                             }
-                            .padding(.horizontal)
-                            .padding(.bottom, 40)
                         }
                         .padding()
                     } else {
-                        ReviewAnswersView(questions: questions, submitAction: { saveAnswersToFirestore() }, editAction: { withAnimation(.spring()) { isFinished = false } })
+                        ReviewAnswersView(
+                            questions: questions,
+                            submitAction: { saveAnswersToFirestore() },
+                            editAction: { withAnimation { isFinished = false } }
+                        )
                     }
-                    NavigationLink(
-                        destination: userType == "Patient" ? AnyView(HomePage()) : AnyView(ProfessionalHomePage()),
-                        isActive: $navigateToHome
-                    ) { EmptyView() }
-                    .hidden()
+                    
+                    NavigationLink(destination: userType == "Patient" ? AnyView(HomePage()) : AnyView(ProfessionalHomePage()),
+                                   isActive: $navigateToHome) {
+                        EmptyView()
+                    }
                 }
+                
                 if isSaving {
                     Color.black.opacity(0.4).ignoresSafeArea()
                     ProgressView("Submitting your answers...")
                         .foregroundColor(.white)
-                        .scaleEffect(1.5)
                         .padding()
-                        .background(Color.gray.opacity(0.8))
-                        .cornerRadius(10)
+                        .background(Color.gray.opacity(0.9))
+                        .cornerRadius(12)
                 }
             }
             .navigationTitle("Questionnaire")
@@ -87,46 +112,53 @@ struct QuestionnaireView: View {
     func contentForQuestion(_ q: QuestionnaireQuestion) -> some View {
         switch q.type {
         case .text:
-            TextField("Enter here", text: Binding(get: { q.answer ?? "" }, set: { updateAnswer($0) }))
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            HStack {
+                Image(systemName: "pencil")
+                    .foregroundColor(.gray)
+                TextField("Enter here", text: Binding(get: { q.answer ?? "" }, set: { updateAnswer($0) }))
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+            .shadow(radius: 1)
+            
         case .date:
-            DatePicker("Choose date", selection: Binding(get: {
-                if let ans = q.answer, let d = ISO8601DateFormatter().date(from: ans) { return d }
-                return Date()
-            }, set: { newVal in updateAnswer(ISO8601DateFormatter().string(from: newVal)) }), displayedComponents: .date)
-                .labelsHidden()
-        case .multipleChoice(let choices):
-            if choices.count > 4 {
-                let columns = [GridItem(.flexible()), GridItem(.flexible())]
-                LazyVGrid(columns: columns, spacing: 10) {
-                    ForEach(choices, id: \.self) { choice in
-                        Button { updateAnswer(choice) } label: {
-                            Text(choice)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(q.answer == choice ? Color.blue.opacity(0.2) : Color.clear)
-                                .cornerRadius(8)
-                        }
+            DatePicker("Select Date", selection: Binding(
+                get: {
+                    if let ans = q.answer, let d = ISO8601DateFormatter().date(from: ans) {
+                        return d
                     }
-                }
-                .padding(.horizontal)
-            } else {
-                VStack {
-                    ForEach(choices, id: \.self) { choice in
-                        Button { updateAnswer(choice) } label: {
-                            Text(choice)
-                                .padding(6)
-                                .frame(maxWidth: .infinity)
-                                .background(q.answer == choice ? Color.blue.opacity(0.2) : Color.clear)
-                                .cornerRadius(8)
-                        }
+                    return Date()
+                },
+                set: { updateAnswer(ISO8601DateFormatter().string(from: $0)) }
+            ), displayedComponents: .date)
+            .datePickerStyle(.compact)
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(10)
+            .shadow(radius: 1)
+            
+        case .multipleChoice(let choices):
+            VStack(spacing: 10) {
+                ForEach(choices, id: \.self) { choice in
+                    Button(action: { updateAnswer(choice) }) {
+                        Text(choice)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(q.answer == choice ? Color.red.opacity(0.8) : Color.gray.opacity(0.1))
+                            .foregroundColor(q.answer == choice ? .white : .black)
+                            .cornerRadius(20)
+                            .shadow(color: Color.gray.opacity(0.2), radius: 2)
                     }
                 }
             }
+            
         case .agreement:
             Toggle(isOn: Binding(get: { q.answer == "true" }, set: { updateAnswer($0 ? "true" : "false") })) {
                 Text("I agree")
+                    .fontWeight(.medium)
             }
+            .toggleStyle(SwitchToggleStyle(tint: .red))
         }
     }
     
@@ -137,6 +169,36 @@ struct QuestionnaireView: View {
     func isAnswerValid(_ q: QuestionnaireQuestion) -> Bool {
         return !(q.answer?.isEmpty ?? true)
     }
+    
+    func saveAnswersToFirestore() {
+        guard !userId.isEmpty else {
+            errorMessage = "User identifier is missing."
+            showErrorAlert = true
+            return
+        }
+        isSaving = true
+        let db = Firestore.firestore()
+        let answers = questions.map { [$0.prompt: $0.answer ?? ""] }
+        
+        db.collection("questionnaire").document(userId).setData(["answers": answers]) { error in
+            isSaving = false
+            if let error = error {
+                errorMessage = "Error saving your responses: \(error.localizedDescription)"
+                showErrorAlert = true
+            } else {
+                db.collection("users").document(userId).updateData(["questionnaireCompleted": true]) { err in
+                    if let err = err {
+                        errorMessage = "Error updating user data: \(err.localizedDescription)"
+                        showErrorAlert = true
+                    } else {
+                        authManager.isQuestionnaireCompleted = true
+                        navigateToHome = true
+                    }
+                }
+            }
+        }
+    }
+    
     
     func loadQuestions() {
         DispatchQueue.main.async {
@@ -178,71 +240,62 @@ struct QuestionnaireView: View {
             }
         }
     }
-    
-    func saveAnswersToFirestore() {
-        guard !userId.isEmpty else {
-            errorMessage = "User identifier is missing."
-            showErrorAlert = true
-            return
-        }
-        isSaving = true
-        let db = Firestore.firestore()
-        let answers = questions.map { [$0.prompt: $0.answer ?? ""] }
-        db.collection("questionnaire").document(userId).setData(["answers": answers]) { error in
-            isSaving = false
-            if let error = error {
-                errorMessage = "Error saving your responses: \(error.localizedDescription)"
-                showErrorAlert = true
-            } else {
-                let userRef = db.collection("users").document(userId)
-                userRef.updateData(["questionnaireCompleted": true]) { err in
-                    if let err = err {
-                        errorMessage = "Error updating user data: \(err.localizedDescription)"
-                        showErrorAlert = true
-                    } else {
-                        authManager.isQuestionnaireCompleted = true
-                        DispatchQueue.main.async {
-                            navigateToHome = true
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 struct ReviewAnswersView: View {
     var questions: [QuestionnaireQuestion]
     var submitAction: () -> Void
     var editAction: () -> Void
+
     var body: some View {
         VStack {
+            Text("Review Your Answers")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.top)
+
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(spacing: 16) {
                     ForEach(questions.indices, id: \.self) { index in
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(questions[index].prompt)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
+
                             Text(questions[index].answer ?? "No answer")
                                 .font(.body)
-                                .foregroundColor(.primary)
                         }
-                        .padding(.vertical, 4)
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(10)
+                        .shadow(color: Color.gray.opacity(0.15), radius: 2)
                     }
                 }
                 .padding()
             }
-            .navigationTitle("Review Answers")
-            HStack {
-                Button("Edit Answers") { editAction() }
-                    .padding()
-                Spacer()
-                Button("Submit") { submitAction() }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+
+            HStack(spacing: 20) {
+                Button("Edit Answers") {
+                    editAction()
+                }
+                .foregroundColor(.black)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(10)
+
+                Button("Submit") {
+                    submitAction()
+                }
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.red)
+                .cornerRadius(10)
             }
             .padding(.horizontal)
+            .padding(.bottom)
         }
     }
 }
+

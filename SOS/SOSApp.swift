@@ -58,10 +58,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct SOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @AppStorage("isDarkMode") var isDarkMode = false
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView()
+                .preferredColorScheme(isDarkMode ? .dark : .light)
         }
     }
 }
+

@@ -1,5 +1,7 @@
 
 
+// File: HomePage.swift
+
 import SwiftUI
 import UIKit
 import AVFoundation
@@ -8,7 +10,35 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
-struct HomePage: View {
+struct MedicalPatternBackground: View {
+    var body: some View {
+        GeometryReader { geometry in
+            let icons = ["cross.case", "bandage.fill", "syringe.fill", "stethoscope", "car.fill"]
+            let size = geometry.size
+
+            ZStack {
+                Color(UIColor.systemBackground)
+
+                ForEach(0..<40, id: \.self) { _ in
+                    let x = CGFloat.random(in: 0..<size.width)
+                    let y = CGFloat.random(in: 0..<size.height)
+                    let icon = icons.randomElement() ?? "cross.case"
+
+                    Image(systemName: icon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(.gray)
+                        .opacity(0.06)
+                        .position(x: x, y: y)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct HomePage: View { 
     var incomingCaseID: String? = nil
     @State private var messages: [String] = []
     @State private var currentMessage: String = ""
@@ -25,7 +55,6 @@ struct HomePage: View {
     @State private var listenerRegistration: ListenerRegistration? = nil
     @State private var hasActiveCase = false
     @State private var currentCaseStatus: String = "InProgress"
-    
     @StateObject private var speechRecognizer = SpeechRecognizer()
     @StateObject private var authManager = FirebaseAuthManager()
     private let chatGPTService = ChatGPTService()
@@ -41,48 +70,64 @@ struct HomePage: View {
         NavigationStack {
             TabView(selection: $selectedTab) {
                 ZStack {
-                    VStack {
+                    MedicalPatternBackground()
+                        .ignoresSafeArea()
+                    VStack(spacing: 0) {
+                        // Header
                         HStack {
+                            HStack(spacing: 4) {
+                                Text("SOS")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                Image("Logo")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                            }
                             Spacer()
-                            Menu {
-                                Button("Profile") { showProfileSheet = true }
-                                Button("Settings") { }
+                            Button {
+                                showProfileSheet = true
                             } label: {
                                 Image(systemName: "person.crop.circle.fill")
                                     .resizable()
                                     .frame(width: 30, height: 30)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.primary)
                             }
                         }
                         .padding(.horizontal)
+
+                        // Case Controls
                         HStack(spacing: 16) {
                             Button(action: requestProfessionalHelp) {
                                 Text("Request Professional Help")
                                     .font(.headline)
                                     .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(isRequestHelpEnabled ? Color.red : Color.gray)
+                                    .background(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress" ? Color.red : Color.gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
                             }
-                            .disabled(!isRequestHelpEnabled)
+                            .disabled(!(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"))
+
                             Button(action: closeCase) {
                                 Text("Close Case")
                                     .font(.headline)
                                     .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(isCloseCaseEnabled ? Color.red : Color.gray)
+                                    .background(currentCaseStatus != "Closed" && currentCaseStatus != "Resolved" ? Color.red : Color.gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
                             }
-                            .disabled(!isCloseCaseEnabled)
+                            .disabled(currentCaseStatus == "Closed" || currentCaseStatus == "Resolved")
                         }
                         .padding(.horizontal)
+
                         if requestingProfessionalHelp {
                             Text("Finding the best professional for you...")
                                 .foregroundColor(.gray)
                                 .padding(.bottom)
                         }
+
+                        // Chat Area
                         ScrollView {
                             VStack(spacing: 12) {
                                 ForEach(messages, id: \.self) { message in
@@ -113,6 +158,7 @@ struct HomePage: View {
                                     }
                                     .padding(.horizontal)
                                 }
+
                                 if isWaitingForResponse {
                                     LoadingDotsView()
                                         .padding(.top, 8)
@@ -121,52 +167,61 @@ struct HomePage: View {
                         }
                         .padding(.top, 10)
                         .onTapGesture { hideKeyBoard() }
+
+                        // Input Bar
                         HStack(spacing: 10) {
-                            Button(action: {
-                                showSpeechSheet = true
-                                speechRecognizer.startTranscribing { text in
-                                    transcribedText = text
-                                }
-                            }) {
-                                Image(systemName: "mic.fill")
-                                    .foregroundColor(.gray)
-                            }
-                            TextField("Type your message...", text: $currentMessage)
-                                .frame(minHeight: 40)
-                            Button(action: { showCameraSheet = true }) {
-                                Image(systemName: "camera.fill")
-                                    .foregroundColor(.gray)
-                            }
+                            TextField("Type a message...", text: $currentMessage)
+                                .padding(12)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(20)
+                                .overlay(
+                                    HStack {
+                                        Spacer()
+                                        Button(action: { showCameraSheet = true }) {
+                                            Image(systemName: "camera.fill")
+                                                .foregroundColor(.gray)
+                                                .padding(.trailing, 8)
+                                        }
+                                        Button(action: {
+                                            showSpeechSheet = true
+                                            speechRecognizer.startTranscribing { text in
+                                                transcribedText = text
+                                            }
+                                        }) {
+                                            Image(systemName: "mic.fill")
+                                                .foregroundColor(.gray)
+                                                .padding(.trailing, 8)
+                                        }
+                                    }
+                                )
+
                             Button(action: sendMessage) {
                                 Image(systemName: "paperplane.fill")
                                     .foregroundColor(.white)
                                     .padding(10)
-                                    .background(Color.blue)
+                                    .background(Color.red)
                                     .cornerRadius(20)
                             }
                         }
-                        .padding()
-                        .background(Color.white.edgesIgnoringSafeArea(.bottom))
-                        .disabled(!(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"))
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
 
+                        Divider()
+                            .background(Color.gray.opacity(0.4))
                     }
                 }
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationBarBackButtonHidden(true)
-                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
                 .tag(0)
+
                 RecentsPage()
-                    .tabItem { Label("Recents", systemImage: "clock.fill") }
+                    .tabItem {
+                        Label("Recents", systemImage: "clock.fill")
+                    }
                     .tag(1)
             }
-            NavigationLink(
-                destination: AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
-                    .navigationBarBackButtonHidden(true),
-                isActive: $navigateToLogin
-            ) {
-                EmptyView()
-            }
-            .hidden()
+
             .sheet(isPresented: $showSpeechSheet) {
                 SpeechRecognitionView(transcribedText: $transcribedText, onSend: {
                     if !transcribedText.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -177,6 +232,7 @@ struct HomePage: View {
                     showSpeechSheet = false
                 })
             }
+
             .sheet(isPresented: $showCameraSheet) {
                 CameraView { recognizedText in
                     isWaitingForResponse = true
@@ -189,28 +245,18 @@ struct HomePage: View {
                     }
                 }
             }
+
+            .sheet(isPresented: $showProfileSheet) {
+                ProfileSheetView(authManager: authManager, onClose: {
+                    showProfileSheet = false
+                })
+            }
+
+
             .fullScreenCover(isPresented: .constant(!authManager.isAuthenticated)) {
                 AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
             }
 
-
-            .sheet(isPresented: $showProfileSheet) {
-                VStack(spacing: 20) {
-                    Text("Profile").font(.headline)
-                    Button("Logout") {
-                        authManager.logout()
-                        showProfileSheet = false
-//                        navigateToLogin = true
-                    }
-                    .padding()
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    Button("Dismiss") { showProfileSheet = false }
-                        .padding()
-                }
-                .padding()
-            }
             .onAppear {
                 if let existingID = incomingCaseID {
                     caseID = existingID
@@ -221,7 +267,6 @@ struct HomePage: View {
                 }
             }
             .onDisappear { listenerRegistration?.remove() }
-            .navigationBarBackButtonHidden(true)
         }
     }
     
@@ -243,17 +288,7 @@ struct HomePage: View {
         }
         return nil
     }
-//    func fetchQuestionnaireWithRetry(userID: String, retries: Int = 3, delay: TimeInterval = 1.0, completion: @escaping ([Any]?) -> Void) {
-//        fetchQuestionnaire(for: userID) { answers in
-//            if answers != nil || retries == 0 {
-//                completion(answers)
-//            } else {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-//                    fetchQuestionnaireWithRetry(userID: userID, retries: retries - 1, delay: delay, completion: completion)
-//                }
-//            }
-//        }
-//    }
+
     
     func autoCreateCaseIfNotExists() {
         guard let user = Auth.auth().currentUser else { return }

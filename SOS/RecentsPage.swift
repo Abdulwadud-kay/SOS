@@ -21,34 +21,40 @@ struct RecentsPage: View {
                 Button {
                     selectedCaseID = c.id
                 } label: {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text(c.patientName)
                             .font(.headline)
+                        
+                        if let preview = c.chatHistory.first, !preview.isEmpty {
+                            Text("🗨️ \(preview)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .lineLimit(2)
+                        }
+
                         Text(displayDate(c.createdAt))
                             .font(.subheadline)
-                            .foregroundColor(.gray)
-                        if c.status == "Closed" || c.status == "Resolved" {
-                            Text("Status: Closed")
-                                .foregroundColor(.red)
-                        } else {
-                            Text("Status: \(c.status)")
-                        }
+                            .foregroundColor(.secondary)
+
+                        Text("Status: \(c.status)")
+                            .font(.caption)
+                            .foregroundColor(c.status == "Closed" ? .red : .gray)
                     }
+                    .padding(.vertical, 6)
                 }
+                .listRowBackground(Color.white)
             }
-            .navigationTitle("Recents")
-            .onAppear {
-                fetchRecents()
-            }
-            .onDisappear {
-                listenerRegistration?.remove()
-            }
+            .scrollContentBackground(.hidden)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Past Diagnoses")
+            .onAppear { fetchRecents() }
+            .onDisappear { listenerRegistration?.remove() }
             .navigationDestination(for: String.self) { caseID in
                 HomePage(incomingCaseID: caseID)
             }
         }
     }
-    
+
     func fetchRecents() {
         guard let user = Auth.auth().currentUser else { return }
         let db = Firestore.firestore()
@@ -64,21 +70,34 @@ struct RecentsPage: View {
                     closedCases = []
                     return
                 }
+
                 closedCases = docs.map { doc in
                     let d = doc.data()
+                    let chat = d["chatHistory"] as? [String] ?? []
+
+                    // Grab the most recent GPT/User message
+                    let lastMsg = chat.reversed().first(where: {
+                        $0.hasPrefix("GPT:") || $0.hasPrefix("User:")
+                    }) ?? ""
+
+                    let preview = lastMsg
+                        .replacingOccurrences(of: "GPT:", with: "")
+                        .replacingOccurrences(of: "User:", with: "")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+
                     return Case(
                         id: doc.documentID,
                         patientName: d["patientName"] as? String ?? "Unknown",
                         age: d["age"] as? Int ?? 0,
                         medicalHistory: d["medicalHistory"] as? String ?? "",
-                        chatHistory: d["chatHistory"] as? [String] ?? [],
+                        chatHistory: [preview], // store only preview here
                         status: d["status"] as? String ?? "Closed",
                         createdAt: (d["createdAt"] as? Timestamp)?.dateValue() ?? Date()
                     )
                 }
             }
     }
-    
+
     func displayDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
