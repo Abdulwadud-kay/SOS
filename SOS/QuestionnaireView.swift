@@ -15,7 +15,7 @@ struct QuestionnaireQuestion {
 }
 
 struct QuestionnaireView: View {
-    @ObservedObject var authManager: FirebaseAuthManager
+    @EnvironmentObject var authManager: FirebaseAuthManager
     @State private var questions: [QuestionnaireQuestion] = []
     @State private var currentIndex = 0
     @State private var isFinished = false
@@ -29,7 +29,7 @@ struct QuestionnaireView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.white.ignoresSafeArea()
+                Color(UIColor.systemBackground).ignoresSafeArea()
                 VStack(spacing: 20) {
                     if questions.isEmpty {
                         ProgressView("Loading questions...")
@@ -41,7 +41,7 @@ struct QuestionnaireView: View {
                                 .fontWeight(.semibold)
                                 .multilineTextAlignment(.center)
                                 .padding()
-                                .background(Color.gray.opacity(0.1))
+                                .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(10)
                                 .shadow(color: Color.gray.opacity(0.2), radius: 4, x: 0, y: 2)
                             
@@ -54,8 +54,8 @@ struct QuestionnaireView: View {
                                         Text("Back")
                                             .padding()
                                             .frame(maxWidth: .infinity)
-                                            .background(Color.gray.opacity(0.2))
-                                            .foregroundColor(.black)
+                                            .background(Color(UIColor.secondarySystemBackground))
+                                            .foregroundColor(.primary)
                                             .cornerRadius(10)
                                     }
                                 }
@@ -118,7 +118,7 @@ struct QuestionnaireView: View {
                 TextField("Enter here", text: Binding(get: { q.answer ?? "" }, set: { updateAnswer($0) }))
             }
             .padding()
-            .background(Color.gray.opacity(0.1))
+            .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(10)
             .shadow(radius: 1)
             
@@ -134,7 +134,7 @@ struct QuestionnaireView: View {
             ), displayedComponents: .date)
             .datePickerStyle(.compact)
             .padding()
-            .background(Color.gray.opacity(0.1))
+            .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(10)
             .shadow(radius: 1)
             
@@ -145,8 +145,8 @@ struct QuestionnaireView: View {
                         Text(choice)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(q.answer == choice ? Color.red.opacity(0.8) : Color.gray.opacity(0.1))
-                            .foregroundColor(q.answer == choice ? .white : .black)
+                            .background(q.answer == choice ? Color.red.opacity(0.8) : Color(UIColor.secondarySystemBackground))
+                            .foregroundColor(q.answer == choice ? .white : .primary)
                             .cornerRadius(20)
                             .shadow(color: Color.gray.opacity(0.2), radius: 2)
                     }
@@ -266,7 +266,7 @@ struct ReviewAnswersView: View {
                                 .font(.body)
                         }
                         .padding()
-                        .background(Color.gray.opacity(0.1))
+                        .background(Color(UIColor.secondarySystemBackground))
                         .cornerRadius(10)
                         .shadow(color: Color.gray.opacity(0.15), radius: 2)
                     }
@@ -278,10 +278,10 @@ struct ReviewAnswersView: View {
                 Button("Edit Answers") {
                     editAction()
                 }
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.2))
+                .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(10)
 
                 Button("Submit") {

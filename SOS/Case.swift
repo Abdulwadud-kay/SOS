@@ -21,26 +21,30 @@ struct Case: Identifiable, Hashable {
 struct CasePreview: View {
     var caseItem: Case
     var onSelect: (Case) -> Void
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         Button(action: { onSelect(caseItem) }) {
             HStack {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(caseItem.patientName)
                         .font(.headline)
-                    // Remove or replace the line below, for example:
-                    // Text("Status: \(caseItem.status)")
+                        .foregroundColor(.primary)
+
                     Text("Status: \(caseItem.status)")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
             }
             .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: colorScheme == .dark ? Color.black.opacity(0.4) : Color.gray.opacity(0.2), radius: 2, x: 0, y: 2)
+            )
         }
-        .background(Color.white)
-        .cornerRadius(10)
-        .shadow(radius: 2)
     }
 }

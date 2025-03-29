@@ -87,7 +87,7 @@ class OpenAIService {
         let base64Image = imageData.base64EncodedString()
 
         let systemPrompt = """
-        You are an AI assistant specialized in analyzing medical images for emergency health-related issues. Thoroughly examine the image to identify both clearly visible and subtle medical conditions, symptoms, or signs that might not be immediately noticeable, such as acne, rashes, swelling, discolorations, or any abnormalities. Begin your detailed analysis with 'This is what is going on...'
+        You are an AI assistant specialized in analyzing medical images for emergency health-related issues. Thoroughly examine the image to identify both clearly visible and subtle medical conditions, symptoms, or signs that might not be immediately noticeable, such as acne, rashes, swelling, discolorations, or any abnormalities. Always begin your detailed analysis with 'This is what is going on...'
 
         IMPORTANT:
         1. Provide your detailed description strictly in \(language).
@@ -107,8 +107,11 @@ class OpenAIService {
 
         messages.append(.init(role: "user", content: [
             .init(type: "image_url", text: nil, imageUrl: .init(url: "data:image/jpeg;base64,\(base64Image)")),
-            .init(type: "text", text: "Describe this image and return the response as JSON with a 'description' field.", imageUrl: nil)
+            .init(type: "text", text: """
+            Hey, I took this photo because I'm feeling something's not right. Here's how it looks. Can you please help me understand what might be going on with me? Let me know in detail.
+            """, imageUrl: nil)
         ]))
+
 
         let request = VisionRequest(
             model: "gpt-4o-mini",

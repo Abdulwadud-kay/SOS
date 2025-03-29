@@ -5,22 +5,47 @@
 //  Created by Abdulwadud Abdulkadir on 3/19/25.
 //
 
+//
+//  FirebaseAuthManager.swift
+//  SOS
+//
+//  Created by Abdulwadud Abdulkadir on 3/19/25.
+//
+
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import Firebase
+import FirebaseMessaging
+import SwiftUI
 
 class FirebaseAuthManager: ObservableObject {
-    @Published var isAuthenticated = false
+    @Published var isAuthenticated: Bool = false
     @Published var userId: String = ""
     @Published var userType: String? = nil
     @Published var isFirstTimeUser = true
     @Published var isQuestionnaireCompleted = false
     @Published var isLoggedInFromFirestore = false
+    @AppStorage("didLogout") private var didLogout: Bool = false
 
     private let auth = Auth.auth()
     private let db = Firestore.firestore()
     private var loginListener: ListenerRegistration?
+
+    init() {
+        checkAuthState()
+    }
+
+    func checkAuthState() {
+        if let user = auth.currentUser, !didLogout {
+            self.userId = user.uid
+            self.isAuthenticated = true
+            self.fetchUserProgress(userID: user.uid)
+            self.startListeningForLoginStatus()
+        } else {
+            self.isAuthenticated = false
+        }
+    }
 
     func signUp(email: String, password: String, completion: @escaping (Bool, String?) -> Void) {
         auth.createUser(withEmail: email, password: password) { result, error in
@@ -36,6 +61,7 @@ class FirebaseAuthManager: ObservableObject {
             self.initializeUser(userID: user.uid, email: email)
             self.isAuthenticated = true
             self.setLoggedIn(true)
+            self.didLogout = false
             self.startListeningForLoginStatus()
             completion(true, nil)
         }
@@ -54,13 +80,13 @@ class FirebaseAuthManager: ObservableObject {
             self.userId = user.uid
             self.isAuthenticated = true
             self.setLoggedIn(true)
+            self.didLogout = false
             self.fetchUserProgress(userID: user.uid)
-
             self.startListeningForLoginStatus()
 
-            // <-- INSERT EXACTLY HERE -->
             self.db.collection("users").document(user.uid).getDocument { snap, error in
-                if let data = snap?.data(), error == nil, let userType = data["userType"] as? String, userType == "Professional" {
+                if let data = snap?.data(), error == nil,
+                   let userType = data["userType"] as? String, userType == "Professional" {
                     Messaging.messaging().subscribe(toTopic: "professionals") { error in
                         if let error = error {
                             print("❌ Subscription failed: \(error.localizedDescription)")
@@ -74,7 +100,6 @@ class FirebaseAuthManager: ObservableObject {
             completion(true, nil)
         }
     }
-
 
     func fetchUserProgress(userID: String) {
         let userRef = db.collection("users").document(userID)
@@ -96,10 +121,10 @@ class FirebaseAuthManager: ObservableObject {
             "userType": NSNull(),
             "questionnaireCompleted": false,
             "isLoggedIn": true
-        ]) { error in }
+        ])
         self.isFirstTimeUser = true
     }
-    
+
     func updateUserType(_ type: String, completion: @escaping (Bool, String?) -> Void) {
         guard !userId.isEmpty else {
             completion(false, "User ID is empty")
@@ -128,9 +153,10 @@ class FirebaseAuthManager: ObservableObject {
                 }
             }
             self.setLoggedIn(false)
-            isAuthenticated = false
-            userId = ""
-            userType = nil
+            self.didLogout = true
+            self.isAuthenticated = false
+            self.userId = ""
+            self.userType = nil
             loginListener?.remove()
             NotificationCenter.default.post(name: NSNotification.Name("UserDidLogoutNotification"), object: nil)
         } catch {
@@ -138,8 +164,6 @@ class FirebaseAuthManager: ObservableObject {
         }
     }
 
-
-    
     private func setLoggedIn(_ value: Bool) {
         guard !userId.isEmpty else { return }
         db.collection("users").document(userId).updateData(["isLoggedIn": value]) { error in
@@ -148,7 +172,7 @@ class FirebaseAuthManager: ObservableObject {
             }
         }
     }
-    
+
     func startListeningForLoginStatus() {
         guard !userId.isEmpty else { return }
         loginListener = db.collection("users").document(userId)
@@ -160,5 +184,4 @@ class FirebaseAuthManager: ObservableObject {
                 }
             }
     }
-
 }

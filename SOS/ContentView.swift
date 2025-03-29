@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var authManager = FirebaseAuthManager()
+    @EnvironmentObject var authManager: FirebaseAuthManager
     @State private var navPath = NavigationPath()
     @State private var navID = UUID()
 
@@ -16,7 +16,9 @@ struct ContentView: View {
         NavigationStack(path: $navPath) {
             Group {
                 if !authManager.isAuthenticated {
-                    AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+                    AuthenticationPage(isAuthenticated: $authManager.isAuthenticated)
+                        .environmentObject(authManager)
+
 
                 } else if !authManager.isLoggedInFromFirestore {
                     ProgressView("Loading your profile...")
@@ -33,10 +35,10 @@ struct ContentView: View {
                         }
                     } else {
                         QuestionnaireView(
-                            authManager: authManager,
                             userId: authManager.userId,
                             userType: userType
                         )
+                        .environmentObject(authManager)
                     }
 
                 } else {

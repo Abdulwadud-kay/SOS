@@ -10,7 +10,7 @@ import Firebase
 
 struct AuthenticationPage: View {
     @Binding var isAuthenticated: Bool
-    @ObservedObject var authManager: FirebaseAuthManager
+    @EnvironmentObject var authManager: FirebaseAuthManager
 
     @State private var isLogin = true
     @State private var email = ""
@@ -27,7 +27,7 @@ struct AuthenticationPage: View {
             Image("Logo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100)
+                .frame(width: 200)
                 .padding(.top, 40)
 
             Text(isLogin ? "Login to SOS" : "Create an Account")
@@ -164,12 +164,5 @@ struct AuthSecureField: View {
         .background(Color(.systemGray6))
         .cornerRadius(10)
         .shadow(radius: 1)
-    }
-}
-
-
-struct AuthenticationPage_Previews: PreviewProvider {
-    static var previews: some View {
-        AuthenticationPage(isAuthenticated: .constant(false), authManager: FirebaseAuthManager())
     }
 }

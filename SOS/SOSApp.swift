@@ -59,12 +59,21 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 struct SOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @AppStorage("isDarkMode") var isDarkMode = false
+    @StateObject var authManager = FirebaseAuthManager()
 
     var body: some Scene {
         WindowGroup {
-            SplashScreenView()
-                .preferredColorScheme(isDarkMode ? .dark : .light)
+            ZStack {
+                Color(UIColor.systemBackground).ignoresSafeArea()
+                SplashScreenView()
+                    .environmentObject(authManager)
+                    .zIndex(1)
+
+                ContentView()
+                    .environmentObject(authManager)
+                    .opacity(authManager.isAuthenticated || !authManager.isAuthenticated ? 1 : 0) // triggers build
+            }
+            .preferredColorScheme(isDarkMode ? .dark : .light)
         }
     }
 }
-

@@ -11,13 +11,12 @@ import Firebase
 struct PatientDetailsView: View {
     let caseID: String
     let onBack: () -> Void
-    
+
     @State private var loadedCase: Case? = nil
     @State private var listenerRegistration: ListenerRegistration? = nil
     @State private var showChatHistory = false
-    
+
     var body: some View {
-        
         ScrollView {
             if let c = loadedCase {
                 VStack(alignment: .leading, spacing: 16) {
@@ -25,76 +24,56 @@ struct PatientDetailsView: View {
                         Button("Release Case") {
                             releaseCase(c.id)
                         }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 12)
-                        .background(Color.orange)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
                         .foregroundColor(.white)
-                        .cornerRadius(10)
-                        Spacer()
+                        .cornerRadius(12)
                     }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Patient Information")
-                            .font(.headline)
-                        Divider()
+
+                    infoCard(title: "Patient Information") {
                         Text("Name: \(c.patientName)")
                         Text("Age: \(c.age)")
                     }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Medical History")
-                            .font(.headline)
-                        Divider()
+
+                    infoCard(title: "Medical History") {
                         if c.medicalHistory.isEmpty {
                             Text("No history provided").foregroundColor(.gray)
                         } else {
-                            Text(c.medicalHistory)
+                            ForEach(c.medicalHistory.components(separatedBy: "\n"), id: \.self) { line in
+                                if !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                                    Text(line)
+                                }
+                            }
                         }
                     }
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
-                    
-                    Button(action: { showChatHistory = true }) {
+
+                    Button {
+                        showChatHistory = true
+                    } label: {
                         HStack {
                             Text("View Chat History")
                             Image(systemName: "chevron.down")
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(8)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(10)
                     }
-                    .padding(.top, 8)
-                    
+                    .padding(.top, 4)
+
                     HStack(spacing: 24) {
-                        Button(action: {}) {
-                            Image(systemName: "message.fill")
-                                .resizable()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.blue)
-                        }
-                        Button(action: {}) {
-                            Image(systemName: "phone.fill")
-                                .resizable()
-                                .frame(width: 35, height: 35)
-                                .foregroundColor(.blue)
-                        }
-                        Button(action: {}) {
-                            Image(systemName: "video.fill")
-                                .resizable()
-                                .frame(width: 40, height: 30)
-                                .foregroundColor(.blue)
+                        ForEach(["message", "phone", "video"], id: \.self) { icon in
+                            Button {} label: {
+                                Image(systemName: icon)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 3, height: 25)
+                                    .foregroundColor(.blue)
+                            }
                         }
                     }
                     .padding(.top, 20)
-                    
-                    Spacer()
                 }
                 .padding()
             } else {
@@ -102,14 +81,12 @@ struct PatientDetailsView: View {
                     .padding()
             }
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("Patient File")
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    onBack()
-                } label: {
+                Button(action: onBack) {
                     HStack {
                         Image(systemName: "chevron.left")
                         Text("Back")
@@ -124,14 +101,23 @@ struct PatientDetailsView: View {
                 Text("No chat available.")
             }
         }
-        .onAppear {
-            listenToCaseDocument()
-        }
-        .onDisappear {
-            listenerRegistration?.remove()
-        }
+        .onAppear(perform: listenToCaseDocument)
+        .onDisappear { listenerRegistration?.remove() }
     }
-    
+
+    func infoCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+            Divider()
+            content()
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(10)
+        .shadow(radius: 2)
+    }
+
     func listenToCaseDocument() {
         let db = Firestore.firestore()
         listenerRegistration = db.collection("cases").document(caseID)
@@ -140,11 +126,8 @@ struct PatientDetailsView: View {
                     print("Error fetching case: \(e)")
                     return
                 }
-                guard let data = snap?.data() else {
-                    print("No case data found.")
-                    return
-                }
-                let newCase = Case(
+                guard let data = snap?.data() else { return }
+                loadedCase = Case(
                     id: caseID,
                     patientName: data["patientName"] as? String ?? "Unknown",
                     age: data["age"] as? Int ?? 0,
@@ -153,10 +136,9 @@ struct PatientDetailsView: View {
                     status: data["status"] as? String ?? "InProgress",
                     createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
                 )
-                loadedCase = newCase
             }
     }
-    
+
     func releaseCase(_ caseID: String) {
         let db = Firestore.firestore()
         db.collection("cases").document(caseID).updateData([
@@ -172,10 +154,9 @@ struct PatientDetailsView: View {
 
 struct ChatHistoryView: View {
     let caseID: String
-    
     @State private var chatMessages: [String] = []
     @State private var listenerRegistration: ListenerRegistration? = nil
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -194,28 +175,22 @@ struct ChatHistoryView: View {
                             HStack {
                                 Text(msg.replacingOccurrences(of: "GPT:", with: ""))
                                     .padding()
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                     .background(Color.gray.opacity(0.2))
                                     .cornerRadius(8)
                                 Spacer()
                             }
-                        } else {
-                            Text(msg)
                         }
                     }
                 }
                 .padding()
             }
             .navigationBarTitle("Chat History", displayMode: .inline)
-            .onAppear {
-                listenForChatUpdates()
-            }
-            .onDisappear {
-                listenerRegistration?.remove()
-            }
+            .onAppear(perform: listenForChatUpdates)
+            .onDisappear { listenerRegistration?.remove() }
         }
     }
-    
+
     func listenForChatUpdates() {
         let db = Firestore.firestore()
         listenerRegistration = db.collection("cases").document(caseID)
@@ -225,9 +200,7 @@ struct ChatHistoryView: View {
                     return
                 }
                 guard let d = snap?.data() else { return }
-                if let history = d["chatHistory"] as? [String] {
-                    chatMessages = history
-                }
+                chatMessages = d["chatHistory"] as? [String] ?? []
             }
     }
 }

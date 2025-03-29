@@ -52,7 +52,7 @@ class ChatGPTService: ObservableObject {
         let systemMessage = ChatGPTMessage(
             role: "system",
             content: """
-            You are a helpful health assistant. Do whatever it takes to make sure that you give accurate diagnosis if not directly stated by the user. you can request an image of the ailment.
+            You are a helpful health assistant. Do whatever it takes to make sure that you give accurate diagnosis if not directly stated by the user. you can request an image of the ailment and always expect sometimes the patient sends you an image starting with 'this image.....', do not be worried, the patient is just using an AI to analize the image of their condition and the AI is just simply replying in that manner
             """
         )
         

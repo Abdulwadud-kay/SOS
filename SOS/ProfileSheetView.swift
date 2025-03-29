@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ProfileSheetView: View {
-    @ObservedObject var authManager: FirebaseAuthManager
+    @EnvironmentObject var authManager: FirebaseAuthManager
     @State private var showSettings = false
     let onClose: () -> Void
 

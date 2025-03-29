@@ -11,32 +11,33 @@ import FirebaseFirestore
 import FirebaseAuth
 
 struct MedicalPatternBackground: View {
+    @Environment(\.colorScheme) var scheme
     var body: some View {
         GeometryReader { geometry in
             let icons = ["cross.case", "bandage.fill", "syringe.fill", "stethoscope", "car.fill"]
             let size = geometry.size
+            let iconColor = scheme == .dark ? Color.white.opacity(0.15) : Color.gray.opacity(0.15)
 
             ZStack {
                 Color(UIColor.systemBackground)
+                ForEach(0..<45, id: \.self) { _ in
+                    let x = size.width > 0 ? CGFloat.random(in: 0..<size.width) : 0
+                    let y = size.height > 0 ? CGFloat.random(in: 0..<size.height) : 0
 
-                ForEach(0..<40, id: \.self) { _ in
-                    let x = CGFloat.random(in: 0..<size.width)
-                    let y = CGFloat.random(in: 0..<size.height)
                     let icon = icons.randomElement() ?? "cross.case"
 
                     Image(systemName: icon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 18, height: 18)
-                        .foregroundColor(.gray)
-                        .opacity(0.06)
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(iconColor)
                         .position(x: x, y: y)
                 }
             }
         }
-        .ignoresSafeArea()
     }
 }
+
 
 struct HomePage: View { 
     var incomingCaseID: String? = nil
@@ -50,14 +51,18 @@ struct HomePage: View {
     @State private var selectedTab = 0
     @State private var requestingProfessionalHelp = false
     @State private var navigateToLogin = false
-    @State private var isWaitingForResponse = false
+//    @State private var isWaitingForResponse = false
     @State private var caseID: String? = nil
     @State private var listenerRegistration: ListenerRegistration? = nil
     @State private var hasActiveCase = false
     @State private var currentCaseStatus: String = "InProgress"
     @StateObject private var speechRecognizer = SpeechRecognizer()
-    @StateObject private var authManager = FirebaseAuthManager()
+    @EnvironmentObject var authManager: FirebaseAuthManager
     private let chatGPTService = ChatGPTService()
+    @Environment(\.colorScheme) var colorScheme
+    @State private var isAnalyzingPhoto = false
+
+
     
     var isRequestHelpEnabled: Bool {
         return currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"
@@ -79,9 +84,6 @@ struct HomePage: View {
                                 Text("SOS")
                                     .font(.title2)
                                     .fontWeight(.bold)
-                                Image("Logo")
-                                    .resizable()
-                                    .frame(width: 20, height: 20)
                             }
                             Spacer()
                             Button {
@@ -94,30 +96,31 @@ struct HomePage: View {
                             }
                         }
                         .padding(.horizontal)
-
+                        Divider()
+                        Spacer()
                         // Case Controls
                         HStack(spacing: 16) {
                             Button(action: requestProfessionalHelp) {
-                                Text("Request Professional Help")
+                                Text("Request Help")
                                     .font(.headline)
-                                    .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress" ? Color.red : Color.gray)
+                                    .padding()
+                                    .background(isRequestHelpEnabled ? Color.red : Color.gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
                             }
-                            .disabled(!(currentCaseStatus == "Pending" || currentCaseStatus == "InProgress"))
+                            .disabled(!isRequestHelpEnabled)
 
                             Button(action: closeCase) {
                                 Text("Close Case")
                                     .font(.headline)
-                                    .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(currentCaseStatus != "Closed" && currentCaseStatus != "Resolved" ? Color.red : Color.gray)
+                                    .padding()
+                                    .background(isCloseCaseEnabled ? Color.red : Color.gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
                             }
-                            .disabled(currentCaseStatus == "Closed" || currentCaseStatus == "Resolved")
+                            .disabled(!isCloseCaseEnabled)
                         }
                         .padding(.horizontal)
 
@@ -146,20 +149,20 @@ struct HomePage: View {
                                         } else if message.hasPrefix("GPT:") {
                                             HStack(spacing: 4) {
                                                 Image(systemName: "cross.case")
-                                                    .foregroundColor(.green)
+                                                    .foregroundColor(colorScheme == .dark ? .white : .black)
                                                 Text(message.replacingOccurrences(of: "GPT:", with: ""))
                                                     .padding()
-                                                    .foregroundColor(.black)
-                                                    .background(Color.gray.opacity(0.2))
+                                                    .foregroundColor(.primary)
+                                                    .background(Color(UIColor.secondarySystemBackground))
                                                     .cornerRadius(12)
                                             }
                                             Spacer()
                                         }
+
                                     }
                                     .padding(.horizontal)
                                 }
-
-                                if isWaitingForResponse {
+                                if isAnalyzingPhoto {
                                     LoadingDotsView()
                                         .padding(.top, 8)
                                 }
@@ -235,26 +238,29 @@ struct HomePage: View {
 
             .sheet(isPresented: $showCameraSheet) {
                 CameraView { recognizedText in
-                    isWaitingForResponse = true
+                    showCameraSheet = false
+                    isAnalyzingPhoto = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         if !recognizedText.trimmingCharacters(in: .whitespaces).isEmpty {
                             currentMessage = recognizedText
                             sendMessage()
                         }
-                        isWaitingForResponse = false
+                        isAnalyzingPhoto = false
                     }
                 }
             }
 
+
             .sheet(isPresented: $showProfileSheet) {
-                ProfileSheetView(authManager: authManager, onClose: {
+                ProfileSheetView(onClose: {
                     showProfileSheet = false
-                })
+                }).environmentObject(authManager)
             }
 
 
             .fullScreenCover(isPresented: .constant(!authManager.isAuthenticated)) {
-                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated, authManager: authManager)
+                AuthenticationPage(isAuthenticated: $authManager.isAuthenticated)
+                    .environmentObject(authManager)
             }
 
             .onAppear {
@@ -315,12 +321,21 @@ struct HomePage: View {
                     // Extract and format data
                     let name = answers.first?["What is your full name?"] ?? user.displayName ?? "Unknown"
                     let birthDate = answers[1]["When were you born?"] ?? ""
-                    let age = calculateAge(from: birthDate) ?? 0
-                    let medHistory = answers
-                        .dropFirst(2)
-                        .compactMap { $0.values.first }
-                        .filter { !$0.isEmpty }
-                        .joined(separator: "\n")
+                    let age = calculateAge(from: birthDate)
+                    let prompts = [
+                        "Gender", "Blood Type", "Allergies", "Chronic Conditions", "Past Surgeries",
+                        "Medications", "Do you smoke?", "Do you consume alcohol?",
+                        "Emergency Contact Name", "Emergency Contact Number", "Current Health Concern"
+                    ]
+                    var medHist = ""
+                    for (i, label) in prompts.enumerated() {
+                        if answers.count > i + 2 {
+                            let val = answers[i + 2].values.first ?? ""
+                            if !val.isEmpty {
+                                medHist += "\(label): \(val)\n"
+                            }
+                        }
+                    }
 
                     // Create case
                     let ref = db.collection("cases").document()
@@ -328,7 +343,7 @@ struct HomePage: View {
                         "patientUid": user.uid,
                         "patientName": name,
                         "age": age,
-                        "medicalHistory": medHistory,
+                        "medicalHistory": medHist,
                         "chatHistory": [],
                         "status": "InProgress",
                         "createdAt": FieldValue.serverTimestamp()
@@ -371,55 +386,27 @@ struct HomePage: View {
             }
     }
 
-    
     func requestProfessionalHelp() {
         requestingProfessionalHelp = true
-        guard let user = Auth.auth().currentUser, let docId = caseID else {
+        guard let docId = caseID else {
             print("No case doc to update.")
             requestingProfessionalHelp = false
             return
         }
+
         let db = Firestore.firestore()
-
-        fetchQuestionnaire(for: user.uid) { answers in
-            let name = extractAnswer(answers ?? [], index: 0) ?? (user.displayName ?? "Unknown")
-
-            // ✅ Calculate age from birthdate
-            let birthdateISO = extractAnswer(answers ?? [], index: 1) ?? ""
-            let age = calculateAge(from: birthdateISO)
-
-            // ✅ Build medical history with labels
-            let prompts = [
-                "Gender", "Blood Type", "Allergies", "Chronic Conditions", "Past Surgeries",
-                "Medications", "Do you smoke?", "Do you consume alcohol?",
-                "Emergency Contact Name", "Emergency Contact Number", "Current Health Concern"
-            ]
-            var medHist = ""
-            if let arr = answers {
-                for (i, label) in prompts.enumerated() {
-                    if let val = extractAnswer(arr, index: i + 2), !val.isEmpty {
-                        medHist += "\(label): \(val)\n"
-                    }
-                }
+        db.collection("cases").document(docId).updateData([
+            "status": "Pending"
+        ]) { err in
+            requestingProfessionalHelp = false
+            if let err = err {
+                print("Error updating case to Pending: \(err)")
+                return
             }
-
-            let updateData: [String: Any] = [
-                "patientName": name,
-                "age": age,
-                "medicalHistory": medHist,
-                "status": "Pending"
-            ]
-
-            db.collection("cases").document(docId).updateData(updateData) { err in
-                requestingProfessionalHelp = false
-                if let err = err {
-                    print("Error updating case to Pending: \(err)")
-                    return
-                }
-                print("✅ Case \(docId) is now Pending.")
-            }
+            print("✅ Case \(docId) is now Pending.")
         }
     }
+
 
     
     func closeCase() {
@@ -461,7 +448,7 @@ struct HomePage: View {
                 print("Error saving user msg: \(err)")
                 return
             }
-            isWaitingForResponse = true
+            isAnalyzingPhoto = true
             db.collection("cases").document(did).getDocument { snap, error in
                 guard error == nil, let docData = snap?.data(),
                       let full = docData["chatHistory"] as? [String] else {
@@ -484,7 +471,7 @@ struct HomePage: View {
 
                 chatGPTService.sendMessageToChatGPT(messages: chatMsgs, useGPT4: wantGPT4) { result in
                     DispatchQueue.main.async {
-                        self.isWaitingForResponse = false
+                        self.isAnalyzingPhoto = false
                         switch result {
                         case .success(let reply):
                             let gptMsg = "GPT: \(reply)"
@@ -551,8 +538,4 @@ struct HomePageWithLoad: View {
     }
 }
 
-struct HomePage_Previews: PreviewProvider {
-    static var previews: some View {
-        HomePage()
-    }
-}
+
